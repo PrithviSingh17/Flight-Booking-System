@@ -1,56 +1,27 @@
 const Booking = require("../models/Booking");
-const Passenger = require("../models/Passenger");
 const { Op } = require("sequelize");
 const BookingStatusMaster = require("../models/BookingStatusMaster"); 
 
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
-    const transaction = await sequelize.transaction(); // Start transaction
     try {
-        const { flight_id, user_id, total_price, passengers, payment_status } = req.body; 
+        
+        console.log("Received Payment Status:", req.body.payment_status); // Log received data
+        console.log("Type of payment_status:", typeof req.body.payment_status);
+        const { user_id, flight_id, booking_status_id, payment_status, booking_date } = req.body;
 
-        // ✅ Step 1: Create Booking
-        const newBooking = await Booking.create(
-            {
-                flight_id,
-                user_id,
-                booking_status_id: 2, // Default: Pending
-                payment_status,
-                created_by: req.user.id,
-                modified_by: req.user.id
-            },
-            { transaction }
-        );
-
-        // ✅ Step 2: Auto-Add Passengers (if provided)
-        if (passengers && passengers.length > 0) {
-            const passengerData = passengers.map(passenger => ({
-                booking_id: newBooking.booking_id, // Link to the newly created booking
-                name: passenger.name,
-                age: passenger.age,
-                gender: passenger.gender,
-                seat_number: passenger.seat_number,
-                passport_number: passenger.passport_number,
-                nationality: passenger.nationality,
-                date_of_birth: passenger.date_of_birth,
-                contact_number: passenger.contact_number,
-                email: passenger.email,
-                special_requests: passenger.special_requests,
-                frequent_flyer_number: passenger.frequent_flyer_number,
-                baggage_weight: passenger.baggage_weight,
-                created_by: req.user.id,
-                modified_by: req.user.id
-            }));
-
-            // ✅ Bulk Insert into Passengers Table
-            await Passenger.bulkCreate(passengerData, { transaction });
-        }
-
-        await transaction.commit(); // ✅ Commit transaction if all goes well
-        res.status(201).json({ message: "Booking created successfully", booking: newBooking });
+        const newBooking = await Booking.create({
+            user_id,
+            flight_id,
+            booking_status_id,
+            payment_status: payment_status ?? 'Pending',
+            booking_date,
+            created_by: user_id,  // Set created_by as the logged-in user
+            modified_by: user_id  // Initially, modified_by is also the creator
+        });
+        res.status(201).json(newBooking);
     } catch (error) {
-        await transaction.rollback(); // ❌ Rollback transaction on error
         console.error("Error Creating Booking:", error);
         res.status(500).json({ error: error.message });
     }
