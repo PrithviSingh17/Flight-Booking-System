@@ -123,18 +123,3 @@ exports.getBookingWithStatus = async (bookingId) => {
 };
 
   
-exports.getLatestBooking = async (req, res) => {
-    try {
-        const latestBooking = await Booking.findOne({
-            order: [["created_at", "DESC"]]
-        });
-
-        if (!latestBooking) {
-            return res.status(404).json({ error: "No bookings found" });
-        }
-
-        res.status(200).json(latestBooking);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};

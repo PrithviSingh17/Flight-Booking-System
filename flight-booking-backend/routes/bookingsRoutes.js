@@ -17,6 +17,6 @@ router.put("/:id", authenticateUser, authorizeRole(["admin"]), bookingController
 
 // Cancel a booking
 router.delete("/:id", authenticateUser, bookingController.cancelBooking);
-router.get("/latest", authenticateUser, bookingController.getLatestBooking);
+
 
 module.exports = router;
