@@ -17,11 +17,15 @@ exports.authenticateUser = (req, res, next) => {
 
 
 // 📌 Middleware for Role-Based Access
-exports.authorizeRole = (roles) => {
+exports.authorizeRole = (role) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Access forbidden: insufficient permissions" });
-    }
-    next();
+      console.log("DEBUG: User Role ->", req.user.role);  // Debug log
+
+      if (req.user.role.toLowerCase() !== role.toLowerCase()) {
+          return res.status(403).json({ error: "Access forbidden: insufficient permissions" });
+      }
+
+      next();
   };
 };
+
