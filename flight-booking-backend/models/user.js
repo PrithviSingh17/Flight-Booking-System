@@ -1,11 +1,11 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // Ensure correct path
+const sequelize = require("../config/db"); 
 const moment = require('moment');
 
 const User = sequelize.define("user", {
   user_id: {
-    type: DataTypes.INTEGER,  // ✅ Ensure it's INTEGER
-    autoIncrement: true,      // ✅ Automatically increments
+    type: DataTypes.INTEGER,  
+    autoIncrement: true,      
     primaryKey: true
   },
   name: {
@@ -17,7 +17,7 @@ const User = sequelize.define("user", {
     allowNull: false,
     unique: true,
   },
-  phone: {  // ✅ Ensure this exists
+  phone: {  
     type: DataTypes.BIGINT,
     allowNull: false,
     validate: {
@@ -61,7 +61,7 @@ const User = sequelize.define("user", {
 {
   sequelize,
   modelName: "user",
-  timestamps: true,  // ✅ Enables automatic createdAt and updatedAt
+  timestamps: true,  
   underscored: true
 }
 

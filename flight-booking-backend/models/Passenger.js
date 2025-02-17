@@ -52,7 +52,7 @@ const Passenger = sequelize.define("passenger", {
         type: DataTypes.BIGINT,
         allowNull: false,
         validate: {
-            len: [10, 10] // Ensure exactly 10 digits
+            len: [10, 10] 
         }
     },
     email: {

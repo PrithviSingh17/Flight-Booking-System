@@ -51,7 +51,7 @@ const Flight = sequelize.define("flight", {
     allowNull: false,
   },
   duration: {
-    type: DataTypes.STRING, // Store as 'HH:MM:SS'
+    type: DataTypes.STRING, 
     allowNull: false,
   },
   price: {

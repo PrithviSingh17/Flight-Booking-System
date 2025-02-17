@@ -3,10 +3,10 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const PaymentMethodMaster = require("../models/PaymentMethodMaster");
 
-// ✅ Create a Payment
+
 exports.createPayment = async (req, res) => {
     try {
-        console.log("Decoded User in req:", req.user); // ✅ Debugging
+        console.log("Decoded User in req:", req.user); 
 
         const newPayment = await Payment.create({
             booking_id: req.body.booking_id,
@@ -14,8 +14,8 @@ exports.createPayment = async (req, res) => {
             amount: req.body.amount,
             payment_method_id: req.body.payment_method_id,
             payment_status: req.body.payment_status ?? 'Pending',
-            created_by: req.user.id,  // ✅ Ensure this is set correctly
-            modified_by: req.user.id  // ✅ Ensure this is set correctly
+            created_by: req.user.id,  
+            modified_by: req.user.id  
         });
 
         res.status(201).json(newPayment);
@@ -26,7 +26,6 @@ exports.createPayment = async (req, res) => {
 };
 
 
-// ✅ Get All Payments (Admin Only)
 exports.getAllPayments = async (req, res) => {
     try {
         const payments = await Payment.findAll();
@@ -36,7 +35,8 @@ exports.getAllPayments = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-// ✅ Get Payment by ID
+
+
 exports.getPaymentById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -56,10 +56,10 @@ exports.getPaymentById = async (req, res) => {
     }
 };
 
-// ✅ Update Payment Status
+
 exports.updatePayment = async (req, res) => {
     try {
-        const { id } = req.params;  // ✅ Fix: Use 'id' instead of 'payment_id'
+        const { id } = req.params;  
         const { payment_status, amount, payment_method_id } = req.body;
 
         const payment = await Payment.findByPk(id);
@@ -71,7 +71,7 @@ exports.updatePayment = async (req, res) => {
             payment_status,
             amount,
             payment_method_id,
-            modified_by: req.user.id  // Ensure this is correctly set
+            modified_by: req.user.id  
         });
 
         res.status(200).json({ message: "Payment updated successfully", payment });
@@ -84,9 +84,6 @@ exports.updatePayment = async (req, res) => {
 
 
 
-
-
-// ✅ Delete Payment (Admin Only)
 exports.deletePayment = async (req, res) => {
     try {
         const { id } = req.params;

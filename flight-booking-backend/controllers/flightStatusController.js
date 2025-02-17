@@ -3,7 +3,7 @@ const FlightStatusMaster = require("../models/FlightStatusMaster");
 const Flight = require("../models/Flight");
 
 
-// Create Flight Status
+
 exports.createFlightStatus = async (req, res) => {
     try {
         const { flight_id, status_name_id, created_by } = req.body;
@@ -22,7 +22,7 @@ exports.createFlightStatus = async (req, res) => {
     }
 };
 
-// Get All Flight Status
+
 exports.getAllFlightStatus = async (req, res) => {
     try {
         const flightStatuses = await FlightStatus.findAll();
@@ -33,7 +33,7 @@ exports.getAllFlightStatus = async (req, res) => {
     }
 };
 
-// Get Flight Status by ID
+
 exports.getFlightStatusById = async (req, res) => {
     try {
         const { status_id } = req.params;
@@ -50,7 +50,7 @@ exports.getFlightStatusById = async (req, res) => {
     }
 };
 
-// Update Flight Status
+
 exports.updateFlightStatus = async (req, res) => {
     try {
         const { status_id } = req.params;
@@ -73,7 +73,7 @@ exports.updateFlightStatus = async (req, res) => {
     }
 };
 
-// Delete Flight Status
+
 exports.deleteFlightStatus = async (req, res) => {
     try {
         const { status_id } = req.params;

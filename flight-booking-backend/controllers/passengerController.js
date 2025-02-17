@@ -1,7 +1,7 @@
 const Passenger = require("../models/Passenger");
 const Booking = require("../models/Booking");
 
-// ✅ Create Passenger
+
 exports.createPassenger = async (req, res) => {
     try {
         const { booking_id, passengers } = req.body;
@@ -10,7 +10,7 @@ exports.createPassenger = async (req, res) => {
             return res.status(400).json({ error: "Invalid request. Ensure booking_id and passengers array are provided." });
         }
 
-        // Add created_by, modified_by automatically from authenticated user
+        
         const passengersData = passengers.map(p => ({
             ...p,
             booking_id,
@@ -18,7 +18,7 @@ exports.createPassenger = async (req, res) => {
             modified_by: req.user.id
         }));
 
-        // Bulk insert passengers
+        
         const newPassengers = await Passenger.bulkCreate(passengersData);
 
         res.status(201).json({ message: "Passengers added successfully", passengers: newPassengers });
@@ -27,7 +27,7 @@ exports.createPassenger = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-// ✅ Get All Passengers
+
 exports.getAllPassengers = async (req, res) => {
     try {
         const passengers = await Passenger.findAll();
@@ -38,7 +38,6 @@ exports.getAllPassengers = async (req, res) => {
     }
 };
 
-// ✅ Get Passenger by ID
 exports.getPassengerById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -53,7 +52,7 @@ exports.getPassengerById = async (req, res) => {
     }
 };
 
-// ✅ Update Passenger
+
 exports.updatePassenger = async (req, res) => {
     try {
         const { id } = req.params;
@@ -85,7 +84,7 @@ exports.updatePassenger = async (req, res) => {
     }
 };
 
-// ✅ Delete Passenger
+
 exports.deletePassenger = async (req, res) => {
     try {
         const { id } = req.params;

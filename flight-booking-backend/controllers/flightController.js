@@ -1,7 +1,7 @@
 const Flight = require("../models/Flight");
 
 
-// Create a Flight
+
 exports.createFlight = async (req, res) => {
   try {
     const flight = await Flight.create(req.body);
@@ -11,7 +11,7 @@ exports.createFlight = async (req, res) => {
   }
 };
 
-// Get all Flights
+
 exports.getAllFlights = async (req, res) => {
   try {
     const flights = await Flight.findAll();
@@ -21,7 +21,7 @@ exports.getAllFlights = async (req, res) => {
   }
 };
 
-// Get Flight by ID
+
 exports.getFlightById = async (req, res) => {
   try {
     const flight = await Flight.findByPk(req.params.id);
@@ -32,7 +32,7 @@ exports.getFlightById = async (req, res) => {
   }
 };
 
-// Update a Flight
+
 exports.updateFlight = async (req, res) => {
   try {
     const flight = await Flight.findByPk(req.params.id);
@@ -45,7 +45,7 @@ exports.updateFlight = async (req, res) => {
   }
 };
 
-// Delete a Flight
+
 exports.deleteFlight = async (req, res) => {
   try {
     const flight = await Flight.findByPk(req.params.id);
@@ -57,7 +57,8 @@ exports.deleteFlight = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// Search Flights by Departure & Arrival City
+
+
 exports.searchFlights = async (req, res) => {
     try {
       const { departure_city, arrival_city } = req.query;
