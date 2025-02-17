@@ -19,13 +19,23 @@ exports.authenticateUser = (req, res, next) => {
 // 📌 Middleware for Role-Based Access
 exports.authorizeRole = (role) => {
   return (req, res, next) => {
-      console.log("DEBUG: User Role ->", req.user.role);  // Debug log
+      // Log both user role and the required role
+      console.log("DEBUG: User Role ->", req.user.role);
+      console.log("DEBUG: Required Role ->", role);
 
-      if (req.user.role.toLowerCase() !== role.toLowerCase()) {
+      // Convert the role parameter to a string to avoid array issues
+      const requiredRole = String(role).trim().toLowerCase();
+      const userRole = String(req.user.role).trim().toLowerCase();
+
+      // Log the final comparison values
+      console.log("DEBUG: Comparing roles -> User:", userRole, "Required:", requiredRole);
+
+      if (userRole !== requiredRole) {
           return res.status(403).json({ error: "Access forbidden: insufficient permissions" });
       }
 
       next();
   };
 };
+
 

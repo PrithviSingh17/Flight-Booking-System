@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const moment = require("moment");
+
 
 const Flight = sequelize.define("flight", {
   flight_id: {

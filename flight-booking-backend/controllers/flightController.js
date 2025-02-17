@@ -1,5 +1,6 @@
 const Flight = require("../models/Flight");
 
+
 // Create a Flight
 exports.createFlight = async (req, res) => {
   try {

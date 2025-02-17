@@ -55,9 +55,18 @@ exports.updateBooking = async (req, res) => {
         const { id } = req.params;
         const { booking_status_id, payment_status, modified_by } = req.body;
 
+        // Log the payment_status to ensure it's correct
+        console.log("DEBUG: Payment Status ->", payment_status);
+
         const booking = await Booking.findByPk(id);
         if (!booking) {
             return res.status(404).json({ error: "Booking not found" });
+        }
+
+        // Normalize payment_status (if necessary)
+        const validPaymentStatuses = ['Success', 'Failed', 'Pending'];
+        if (payment_status && !validPaymentStatuses.includes(payment_status)) {
+            return res.status(400).json({ error: `Invalid payment status. Allowed values: ${validPaymentStatuses.join(', ')}` });
         }
 
         // Update only the fields that are provided

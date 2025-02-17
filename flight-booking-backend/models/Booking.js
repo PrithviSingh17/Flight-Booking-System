@@ -37,13 +37,11 @@ const Booking = sequelize.define("Booking", {
         }
     },
     payment_status: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('Success', 'Failed', 'Pending'),
         allowNull: false,
-        defaultValue: 'Pending',
-        validate: {
-          isIn: [['Success ', 'Pending', 'Failed']]
-        }
-      },      
+        defaultValue: 'Pending'
+      }
+      ,      
     booking_date: {
         type: DataTypes.DATE,
         allowNull: false
