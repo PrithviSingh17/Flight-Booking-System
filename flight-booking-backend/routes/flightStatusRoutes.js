@@ -4,7 +4,7 @@ const flightStatusController = require("../controllers/flightStatusController");
 const { authenticateUser, authorizeRole } = require("../middleware/authMiddleware");
 
 
-console.log(flightStatusController);
+
 
 
 router.get("/", authenticateUser, flightStatusController.getAllFlightStatus);
