@@ -8,9 +8,9 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("flights");
   const navigate = useNavigate();
 
-  // ✅ Force users to login if token is missing
+  // ✅ Redirect to login if sessionStorage token is missing
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/login", { replace: true });
     }

@@ -65,15 +65,17 @@ exports.loginUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-      if (req.user.role !== "admin") {
-          return res.status(403).json({ error: "Access forbidden: insufficient permissions" });
-      }
-      const users = await User.findAll(); 
-      res.json(users);
+    console.log("Admin Role Detected:", req.user.role);
+    const users = await User.findAll();
+    console.log("Users Fetched from DB:", users); // Debug log
+
+    res.json(users);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 
 exports.getUserById = async (req, res) => {

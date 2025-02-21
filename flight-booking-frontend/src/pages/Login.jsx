@@ -7,9 +7,9 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // ✅ If logged in, redirect to admin
+  // ✅ Redirect if already logged in (token in sessionStorage)
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (token) {
       navigate("/admin", { replace: true });
     }
@@ -20,8 +20,8 @@ function Login() {
     try {
       const res = await API.post("/users/login", { email, password });
       console.log("Login Successful:", res.data);
-      localStorage.setItem("token", res.data.token);
-      navigate("/admin", { replace: true }); // Redirect to admin panel
+      sessionStorage.setItem("token", res.data.token); // 🔹 Store in sessionStorage
+      navigate("/admin", { replace: true });
     } catch (err) {
       alert("Login failed: " + err.response?.data?.error);
     }

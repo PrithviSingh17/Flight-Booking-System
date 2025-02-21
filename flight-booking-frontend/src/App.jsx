@@ -3,7 +3,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Login from "./pages/Login";
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token"); // 🔹 Use sessionStorage
   return token ? children : <Navigate to="/login" replace />;
 }
 
