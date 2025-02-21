@@ -7,21 +7,21 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Only run once when the component mounts
+  // ✅ If logged in, redirect to admin
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/admin", { replace: true }); // Prevents adding a new entry to history
+      navigate("/admin", { replace: true });
     }
-  }, []); // 🔹 Empty dependency array ensures this runs once
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const res = await API.post("/users/login", { email, password });
-      console.log("Login Response:", res.data);
+      console.log("Login Successful:", res.data);
       localStorage.setItem("token", res.data.token);
-      navigate("/admin", { replace: true }); // Redirect after login
+      navigate("/admin", { replace: true }); // Redirect to admin panel
     } catch (err) {
       alert("Login failed: " + err.response?.data?.error);
     }

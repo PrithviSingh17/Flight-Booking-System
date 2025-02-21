@@ -8,13 +8,13 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("flights");
   const navigate = useNavigate();
 
-  // ✅ Prevent infinite loop by using empty dependency array
+  // ✅ Force users to login if token is missing
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/login", { replace: true }); // Redirects only once
+      navigate("/login", { replace: true });
     }
-  }, []); // 🔹 Runs only on mount
+  }, []);
 
   return (
     <div className="flex h-screen">
