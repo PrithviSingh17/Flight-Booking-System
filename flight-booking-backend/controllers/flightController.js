@@ -7,6 +7,7 @@ exports.createFlight = async (req, res) => {
     const flight = await Flight.create(req.body);
     res.status(201).json(flight);
   } catch (error) {
+    console.error("Error creating flight:", error);
     res.status(400).json({ error: error.message });
   }
 };
