@@ -25,13 +25,19 @@ exports.createFlightStatus = async (req, res) => {
 
 exports.getAllFlightStatus = async (req, res) => {
     try {
-        const flightStatuses = await FlightStatus.findAll();
-        return res.status(200).json(flightStatuses);
+      const flightStatuses = await FlightStatus.findAll({
+        include: [
+          {
+            model: Flight,
+            attributes: ["flight_number"], // Include the airline number
+          },
+        ],
+      });
+      res.status(200).json(flightStatuses);
     } catch (error) {
-        console.error("Error fetching flight status:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json({ error: error.message });
     }
-};
+  };
 
 
 exports.getFlightStatusById = async (req, res) => {

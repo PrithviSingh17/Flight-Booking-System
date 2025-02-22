@@ -52,4 +52,5 @@ const FlightStatus = sequelize.define("flightStatus", {
     timestamps: false,
 });
 
+FlightStatus.belongsTo(Flight, { foreignKey: "flight_id" });
 module.exports = FlightStatus;
