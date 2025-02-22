@@ -1,14 +1,16 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // Update if your backend URL is different
+  baseURL: "http://localhost:5000/api",
 });
 
-// Attach token for protected routes
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
+  console.log("🔹 Token Sent in API Request:", token); // Debug log
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    console.error("❌ No token found in sessionStorage!");
   }
   return config;
 });
