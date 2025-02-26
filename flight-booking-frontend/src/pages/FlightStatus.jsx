@@ -96,7 +96,7 @@ function FlightStatus() {
           <tr className="bg-gray-200">
             <th className="border border-gray-400 p-2">Status ID</th>
             <th className="border border-gray-400 p-2">Flight ID</th>
-            <th className="border border-gray-400 p-2">Airline Number</th>
+            <th className="border border-gray-400 p-2">Flight Number</th>
             <th className="border border-gray-400 p-2">Status</th>
             <th className="border border-gray-400 p-2">Last Updated</th>
             <th className="border border-gray-400 p-2">Actions</th>

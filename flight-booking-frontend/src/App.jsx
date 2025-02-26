@@ -1,19 +1,27 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
 import Login from "./pages/Login";
-
-function PrivateRoute({ children }) {
-  const token = sessionStorage.getItem("token"); // 🔹 Use sessionStorage
-  return token ? children : <Navigate to="/login" replace />;
-}
+import "./styles/global.css"; // Import global styles
 
 function App() {
+  // Check if the user is logged in (token exists in sessionStorage)
+  const isLoggedIn = !!sessionStorage.getItem("token");
+
   return (
     <Router>
       <Routes>
+        {/* Redirect root path to /login or /admin based on login status */}
+        <Route
+          path="/"
+          element={isLoggedIn ? <Navigate to="/admin" /> : <Navigate to="/login" />}
+        />
+
+        {/* Login Page */}
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-        <Route path="*" element={<Navigate to="/login" />} />
+
+        {/* Admin Dashboard */}
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

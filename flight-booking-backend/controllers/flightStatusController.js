@@ -29,16 +29,18 @@ exports.getAllFlightStatus = async (req, res) => {
         include: [
           {
             model: Flight,
-            attributes: ["flight_number"], // Include the airline number
+            attributes: ["flight_number"], // Include only the flight_number field
           },
         ],
       });
-      res.status(200).json(flightStatuses);
+  
+      console.log("Flight Statuses Fetched:", flightStatuses); // Debug log
+      res.json(flightStatuses);
     } catch (error) {
+      console.error("Error fetching flight statuses:", error);
       res.status(500).json({ error: error.message });
     }
   };
-
 
 exports.getFlightStatusById = async (req, res) => {
     try {

@@ -1,0 +1,69 @@
+/* Login Container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+  }
+  
+  /* Background Image */
+  .background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/Login.jpg'); /* Ensure this path is correct */
+    background-size: cover;
+    background-position: center;
+    z-index: 1; /* Background image should be behind the overlay and login card */
+  }
+  
+  /* Overlay for Background Image */
+  .background-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay for better readability */
+    z-index: 2; /* Overlay should be above the background image but below the login card */
+  }
+  
+  /* Login Card */
+  .login-card {
+    width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    z-index: 3; /* Login card should be above the overlay */
+  }
+  
+  /* Welcome Message */
+  .welcome-message {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1890ff; /* Ant Design primary color */
+  }
+  
+  /* Form Inputs */
+  .ant-form-item-label {
+    font-weight: bold;
+  }
+  
+  /* Login Button */
+  .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    border-radius: 4px;
+  }
+  
+  .ant-btn-primary:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
