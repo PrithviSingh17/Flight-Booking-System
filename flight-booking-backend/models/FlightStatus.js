@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Flight = require("./Flight");
-const FlightStatusMaster = require("./FlightStatusMaster");
+const FlightStatusMaster = require("./FlightStatusMaster")// Pass sequelize and DataTypes
 
 const FlightStatus = sequelize.define("flightStatus", {
     status_id: {
@@ -22,7 +22,7 @@ const FlightStatus = sequelize.define("flightStatus", {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: FlightStatusMaster,
+            model: FlightStatusMaster, // Use the correctly imported model
             key: "status_id",
         },
         onDelete: "SET NULL",
@@ -52,5 +52,8 @@ const FlightStatus = sequelize.define("flightStatus", {
     timestamps: false,
 });
 
+// Define associations
 FlightStatus.belongsTo(Flight, { foreignKey: "flight_id" });
+ // Ensure this is correct
+
 module.exports = FlightStatus;

@@ -1,6 +1,10 @@
+const { DataTypes } = require("sequelize");
 const FlightStatus = require("../models/FlightStatus");
-const FlightStatusMaster = require("../models/FlightStatusMaster");
+const FlightStatusMaster = require("../models/FlightStatusMaster")
 const Flight = require("../models/Flight");
+
+console.log("FlightStatusMaster:", FlightStatusMaster); // Debug log
+console.log("Flight:", Flight); // Debug log
 
 
 
@@ -31,10 +35,11 @@ exports.getAllFlightStatus = async (req, res) => {
             model: Flight,
             attributes: ["flight_number"], // Include only the flight_number field
           },
+  
         ],
       });
   
-      console.log("Flight Statuses Fetched:", flightStatuses); // Debug log
+      console.log("Flight Statuses Fetched:", JSON.stringify(flightStatuses, null, 2)); // Debug log
       res.json(flightStatuses);
     } catch (error) {
       console.error("Error fetching flight statuses:", error);

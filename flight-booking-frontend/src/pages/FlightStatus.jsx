@@ -94,10 +94,10 @@ function FlightStatus() {
       <table className="w-full border-collapse border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border border-gray-400 p-2">Status ID</th>
+            <th className="border border-gray-400 p-2">ID</th>
             <th className="border border-gray-400 p-2">Flight ID</th>
             <th className="border border-gray-400 p-2">Flight Number</th>
-            <th className="border border-gray-400 p-2">Status</th>
+            <th className="border border-gray-400 p-2">Status ID</th>
             <th className="border border-gray-400 p-2">Last Updated</th>
             <th className="border border-gray-400 p-2">Actions</th>
           </tr>
@@ -109,7 +109,7 @@ function FlightStatus() {
                 <td className="border border-gray-400 p-2">{status.status_id}</td>
                 <td className="border border-gray-400 p-2">{status.flight_id}</td>
                 <td className="border border-gray-400 p-2">
-                  {status.Flight?.flight_number || "N/A"}
+                  {status.flight?.flight_number || "N/A"}
                 </td>
                 <td className="border border-gray-400 p-2">{status.status_name_id}</td>
                 <td className="border border-gray-400 p-2">
