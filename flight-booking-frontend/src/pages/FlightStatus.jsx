@@ -65,9 +65,9 @@ function FlightStatus() {
         );
         message.success("Flight status created successfully.");
       }
-      fetchFlightStatuses(); // Refresh the data
-      setIsModalOpen(false); // Close the modal
-      setEditingStatus(null); // Reset editing state
+      fetchFlightStatuses(); 
+      setIsModalOpen(false); 
+      setEditingStatus(null); 
     } catch (err) {
       console.error("Error saving flight status:", err);
       message.error("Failed to save flight status.");
@@ -78,7 +78,7 @@ function FlightStatus() {
     <div>
       <h2 className="text-xl font-bold mb-4">Flight Status Management</h2>
 
-      {/* Create Flight Status Button */}
+      
       <Button
         type="primary"
         onClick={() => {
@@ -90,14 +90,14 @@ function FlightStatus() {
         Create Flight Status
       </Button>
 
-      {/* Flight Status Table */}
+      
       <table className="w-full border-collapse border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border border-gray-400 p-2">ID</th>
+            <th className="border border-gray-400 p-2">FLightStatusID</th>
             <th className="border border-gray-400 p-2">Flight ID</th>
             <th className="border border-gray-400 p-2">Flight Number</th>
-            <th className="border border-gray-400 p-2">Status ID</th>
+            <th className="border border-gray-400 p-2">Status</th>
             <th className="border border-gray-400 p-2">Last Updated</th>
             <th className="border border-gray-400 p-2">Actions</th>
           </tr>
@@ -148,7 +148,7 @@ function FlightStatus() {
         </tbody>
       </table>
 
-      {/* Create/Edit Flight Status Modal */}
+      
       <Modal
         title={editingStatus ? "Edit Flight Status" : "Create Flight Status"}
         open={isModalOpen}

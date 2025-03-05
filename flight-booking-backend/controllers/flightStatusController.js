@@ -3,9 +3,6 @@ const FlightStatus = require("../models/FlightStatus");
 const FlightStatusMaster = require("../models/FlightStatusMaster")
 const Flight = require("../models/Flight");
 
-console.log("FlightStatusMaster:", FlightStatusMaster); // Debug log
-console.log("Flight:", Flight); // Debug log
-
 
 
 exports.createFlightStatus = async (req, res) => {
@@ -33,7 +30,7 @@ exports.getAllFlightStatus = async (req, res) => {
         include: [
           {
             model: Flight,
-            attributes: ["flight_number"], // Include only the flight_number field
+            attributes: ["flight_number"], 
           },
   
         ],
@@ -50,7 +47,14 @@ exports.getAllFlightStatus = async (req, res) => {
 exports.getFlightStatusById = async (req, res) => {
     try {
         const { status_id } = req.params;
-        const flightStatus = await FlightStatus.findByPk(status_id);
+        const flightStatus = await FlightStatus.findByPk(status_id,
+            {include: [
+                {
+                  model: Flight,
+            attributes: ["flight_number"], // Include status_name from FlightStatusMaster
+                },
+              ],
+            });
 
         if (!flightStatus) {
             return res.status(404).json({ error: "Flight status not found" });
@@ -108,5 +112,6 @@ module.exports = {
     getAllFlightStatus: exports.getAllFlightStatus,
     getFlightStatusById: exports.getFlightStatusById,
     updateFlightStatus: exports.updateFlightStatus,
-    deleteFlightStatus: exports.deleteFlightStatus
+    deleteFlightStatus: exports.deleteFlightStatus,
+    getAllStatusNames: exports.getAllStatusNames
 };

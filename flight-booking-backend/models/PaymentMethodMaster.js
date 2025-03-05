@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const moment =require('moment');
 
 const PaymentMethodMaster = sequelize.define(
   "paymentmethodmaster",
@@ -15,21 +16,25 @@ const PaymentMethodMaster = sequelize.define(
       unique: true,
     },
     created_by: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+        get() {
+            return moment.utc(this.getDataValue("created_at")).tz("Asia/Kolkata").format();
+        }
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    modified_by: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    modified_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
+      modified_by: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      modified_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        onUpdate: sequelize.literal('CURRENT_TIMESTAMP')
+      },
   },
   {
 

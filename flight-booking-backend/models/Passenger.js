@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Booking = require("./Booking");
+const moment = require('moment');
 
 const Passenger = sequelize.define("passenger", {
     passenger_id: {
@@ -75,21 +76,25 @@ const Passenger = sequelize.define("passenger", {
         allowNull: true
     },
     created_by: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-    },
-    created_at: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+        get() {
+            return moment.utc(this.getDataValue("created_at")).tz("Asia/Kolkata").format();
+        }
     },
-    modified_by: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-    },
-    modified_at: {
+      modified_by: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      modified_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    }
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        onUpdate: sequelize.literal('CURRENT_TIMESTAMP')
+      }
 }, {
     timestamps: false
 });

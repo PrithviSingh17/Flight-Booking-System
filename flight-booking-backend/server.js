@@ -9,6 +9,7 @@ const bookingsRoutes = require("./routes/bookingsRoutes");
 const paymentsRoutes = require("./routes/paymentsRoutes");
 const passengersRoutes = require("./routes/passengersRoutes");
 const flightStatusRoutes = require("./routes/flightStatusRoutes");
+const airportRoutes = require("./routes/airportRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 dotenv.config();
@@ -27,7 +28,7 @@ app.use("/api/bookings", bookingsRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/passengers", passengersRoutes);
 app.use("/api/flight-status", flightStatusRoutes);
-
+app.use("/api/airports", airportRoutes);
 
 app.use(errorHandler);
 

@@ -3,10 +3,6 @@ const router = express.Router();
 const flightStatusController = require("../controllers/flightStatusController");
 const { authenticateUser, authorizeRole } = require("../middleware/authMiddleware");
 
-
-
-
-
 router.get("/", authenticateUser, flightStatusController.getAllFlightStatus);
 
 

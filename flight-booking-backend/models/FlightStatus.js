@@ -1,7 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const Flight = require("./Flight");
-const FlightStatusMaster = require("./FlightStatusMaster")// Pass sequelize and DataTypes
+const FlightStatusMaster = require("./FlightStatusMaster")
+const moment =require('moment');// Pass sequelize and DataTypes
 
 const FlightStatus = sequelize.define("flightStatus", {
     status_id: {
@@ -32,21 +33,25 @@ const FlightStatus = sequelize.define("flightStatus", {
         defaultValue: DataTypes.NOW,
     },
     created_by: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    created_at: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+        get() {
+            return moment.utc(this.getDataValue("created_at")).tz("Asia/Kolkata").format();
+        }
     },
-    modified_by: {
-        type: DataTypes.INTEGER,
+      modified_by: {
+        type: DataTypes.STRING,
         allowNull: true,
-    },
-    modified_at: {
+      },
+      modified_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+        onUpdate: sequelize.literal('CURRENT_TIMESTAMP')
+      },
 }, {
     tableName: "flight_status",
     timestamps: false,
@@ -54,6 +59,6 @@ const FlightStatus = sequelize.define("flightStatus", {
 
 // Define associations
 FlightStatus.belongsTo(Flight, { foreignKey: "flight_id" });
- // Ensure this is correct
+
 
 module.exports = FlightStatus;
