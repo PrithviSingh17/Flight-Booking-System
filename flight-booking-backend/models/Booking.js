@@ -68,5 +68,17 @@ const Booking = sequelize.define("Booking", {
     tableName: "bookings",
     timestamps: false
 });
-
+Booking.belongsTo(BookingStatusMaster, {
+    foreignKey: "booking_status_id",
+    as: "status", // This alias is used in the include statement
+  });
+Booking.belongsTo(User, {
+    foreignKey: "user_id",
+    as: "user",
+  });
+Booking.belongsTo(Flight, {
+    foreignKey: "flight_id",
+    as: "flight",
+  });
+    
 module.exports = Booking;
