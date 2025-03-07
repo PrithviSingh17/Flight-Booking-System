@@ -34,7 +34,7 @@ const User = sequelize.define("user", {
     allowNull: false,
   },
   created_by: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   created_at: {
@@ -45,7 +45,7 @@ const User = sequelize.define("user", {
     }
 },
   modified_by: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   modified_at: {

@@ -4,11 +4,19 @@ const Flight = require("../models/Flight");
 
 exports.createFlight = async (req, res) => {
   try {
-    const flight = await Flight.create(req.body);
-    res.status(201).json(flight);
+    const userId = req.user.user_id; // Ensure this is correctly populated
+    console.log("User ID from token:", userId); // Debug log
+
+    const newFlight = await Flight.create({
+      ...req.body,
+      created_by: userId,
+      modified_by: userId,
+    });
+
+    res.status(201).json(newFlight);
   } catch (error) {
     console.error("Error creating flight:", error);
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: "Failed to create flight" });
   }
 };
 

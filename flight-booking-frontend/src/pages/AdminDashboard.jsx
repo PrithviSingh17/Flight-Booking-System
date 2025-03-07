@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Flights from "./Flights";
 import FlightStatus from "./FlightStatus";
 import Users from "./Users";
+import Airports from "./Airports"; 
 import { Layout, Menu, theme } from "antd";
 import "../styles/global.css"; // Import global styles
 
@@ -44,6 +45,8 @@ function AdminDashboard() {
             { key: "flights", label: "Flights" },
             { key: "flightStatus", label: "Flight Status" },
             { key: "users", label: "Users" },
+            { key: "airports", label: "Airports" },
+            
           ]}
         />
       </Sider>
@@ -56,6 +59,8 @@ function AdminDashboard() {
             {activeTab === "flights" && <Flights />}
             {activeTab === "flightStatus" && <FlightStatus />}
             {activeTab === "users" && <Users />}
+            {activeTab === "airports" && <Airports />}
+            
           </div>
         </Content>
       </Layout>

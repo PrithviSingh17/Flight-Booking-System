@@ -14,8 +14,8 @@ exports.createPayment = async (req, res) => {
             amount: req.body.amount,
             payment_method_id: req.body.payment_method_id,
             payment_status: req.body.payment_status ?? 'Pending',
-            created_by: req.user.id,  
-            modified_by: req.user.id  
+            created_by: req.user.user_id,  
+            modified_by: req.user.user_id  
         });
 
         res.status(201).json(newPayment);

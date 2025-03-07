@@ -7,13 +7,13 @@ const Flight = require("../models/Flight");
 
 exports.createFlightStatus = async (req, res) => {
     try {
-        const { flight_id, status_name_id, created_by } = req.body;
+        const { flight_id, status_name_id} = req.body;
 
         const flightStatus = await FlightStatus.create({
             flight_id,
             status_name_id,
-            created_by,
-            modified_by: created_by
+            created_by: req.user.user_id,
+            modified_by: req.user.user_id,
         });
 
         return res.status(201).json(flightStatus);

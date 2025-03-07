@@ -25,7 +25,7 @@ const Airport = sequelize.define("Airport", {
     allowNull: false,
   },
   created_by: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   created_at: {
@@ -36,8 +36,8 @@ const Airport = sequelize.define("Airport", {
     }
 },
   modified_by: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   modified_at: {
     type: DataTypes.DATE,

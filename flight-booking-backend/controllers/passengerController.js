@@ -14,8 +14,8 @@ exports.createPassenger = async (req, res) => {
         const passengersData = passengers.map(p => ({
             ...p,
             booking_id,
-            created_by: req.user.id,
-            modified_by: req.user.id
+            created_by: req.user.user_id,
+            modified_by: req.user.user_id
         }));
 
         
