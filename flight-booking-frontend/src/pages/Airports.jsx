@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message, Popconfirm, Modal } from "antd";
+import { Table, Button, message, Popconfirm, Modal, Input } from "antd";
 import API from "../services/api";
 import AirportForm from "../components/AirportForm";
 
@@ -8,12 +8,12 @@ function Airports() {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAirport, setEditingAirport] = useState(null);
+  const [cityFilter, setCityFilter] = useState("");
 
   useEffect(() => {
     fetchAirports();
   }, []);
 
-  // Fetch all airports
   const fetchAirports = async () => {
     setLoading(true);
     try {
@@ -31,19 +31,17 @@ function Airports() {
     }
   };
 
-  // Delete an airport
   const handleDelete = async (airportCode) => {
     try {
       await API.delete(`/airports/airports/${airportCode}`);
       message.success("Airport deleted successfully.");
-      fetchAirports(); // Refresh the list
+      fetchAirports();
     } catch (err) {
       console.error("Error deleting airport:", err);
       message.error("Failed to delete airport.");
     }
   };
 
-  // Handle form submission (create or update)
   const handleFormSubmit = async (values) => {
     try {
       if (editingAirport) {
@@ -53,7 +51,7 @@ function Airports() {
         await API.post("/airports/airports", values);
         message.success("Airport created successfully.");
       }
-      fetchAirports(); // Refresh the list
+      fetchAirports();
       setIsModalOpen(false);
       setEditingAirport(null);
     } catch (err) {
@@ -62,9 +60,20 @@ function Airports() {
     }
   };
 
+  const filteredAirports = airports.filter((airport) =>
+    airport.city.toLowerCase().includes(cityFilter.toLowerCase())
+  );
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Airports Management</h2>
+
+      <Input
+        placeholder="Search by city"
+        value={cityFilter}
+        onChange={(e) => setCityFilter(e.target.value)}
+        style={{ marginBottom: "20px", width: "200px" }}
+      />
 
       <Button
         type="primary"
@@ -72,12 +81,11 @@ function Airports() {
           setEditingAirport(null);
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: "20px" }}
+        style={{ marginBottom: "20px", marginLeft: "10px"}}
       >
         Create Airport
       </Button>
 
-      {/* Table with custom CSS */}
       <table className="w-full border-collapse border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
@@ -90,7 +98,7 @@ function Airports() {
           </tr>
         </thead>
         <tbody>
-          {airports.map((airport) => (
+          {filteredAirports.map((airport) => (
             <tr key={airport.airport_code} className="text-center">
               <td className="border border-gray-400 p-2">{airport.airport_code}</td>
               <td className="border border-gray-400 p-2">{airport.airport_name}</td>
@@ -123,7 +131,6 @@ function Airports() {
         </tbody>
       </table>
 
-      {/* Modal for Create/Edit Airport */}
       <Modal
         title={editingAirport ? "Edit Airport" : "Create Airport"}
         open={isModalOpen}

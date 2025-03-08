@@ -13,7 +13,7 @@ const flightStatusRoutes = require("./routes/flightStatusRoutes");
 const airportRoutes = require("./routes/airportRoutes");
 const errorHandler = require("./middleware/errorHandler");
 const bookingStatusRoutes = require("./routes/bookingStatusRoutes");
-
+const flightStatusMasterRoutes = require("./routes/flightStatusMasterRoutes");
 dotenv.config();
 
 const app = express();
@@ -32,7 +32,7 @@ app.use("/api/passengers", passengersRoutes);
 app.use("/api/flight-status", flightStatusRoutes);
 app.use("/api/airports", airportRoutes);
 app.use("/api/booking-status", bookingStatusRoutes);
-
+app.use("/api/flight-status-master", flightStatusMasterRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

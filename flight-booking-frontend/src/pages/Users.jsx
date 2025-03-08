@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, message, Popconfirm } from "antd";
+import { Table, Button, Modal, message, Popconfirm, Input } from "antd";
 import API from "../services/api";
 import UserForm from "../components/UserForm";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [nameFilter, setNameFilter] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -15,10 +16,9 @@ function Users() {
     try {
       const res = await API.get("/users", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log("Users Data Fetched:", res.data); // Debug log
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -30,7 +30,7 @@ function Users() {
     try {
       await API.delete(`/users/${userId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       message.success("User deleted successfully.");
@@ -43,41 +43,45 @@ function Users() {
 
   const handleFormSubmit = async (values) => {
     try {
-      console.log("Payload being sent to backend:", values); // Debug log
-      await API.post(
-        "/users/register",
-        values,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await API.post("/users/register", values, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       message.success("User created successfully.");
       fetchUsers();
       setIsModalOpen(false);
     } catch (err) {
-      console.error("Error creating user:", err.response?.data || err.message); // Debug log
+      console.error("Error creating user:", err.response?.data || err.message);
       message.error("Failed to create user.");
     }
   };
-  
+
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(nameFilter.toLowerCase())
+  );
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Users Management</h2>
 
-      {/* Create User Button */}
+      <Input
+        placeholder="Search by name"
+        value={nameFilter}
+        onChange={(e) => setNameFilter(e.target.value)}
+        style={{ marginBottom: "20px", width: "200px" }}
+      />
+
       <Button
         type="primary"
         onClick={() => {
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: "20px" }}
+        style={{ marginBottom: "20px", marginLeft: "10px" }}
       >
         Create User
       </Button>
 
-      {/* Users Table */}
       <table className="w-full border-collapse border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
@@ -90,8 +94,8 @@ function Users() {
           </tr>
         </thead>
         <tbody>
-          {users.length > 0 ? (
-            users.map((user) => (
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
               <tr key={user.user_id} className="text-center">
                 <td className="border border-gray-400 p-2">{user.user_id || "N/A"}</td>
                 <td className="border border-gray-400 p-2">{user.name || "N/A"}</td>
@@ -122,7 +126,6 @@ function Users() {
         </tbody>
       </table>
 
-      {/* Create User Modal */}
       <Modal
         title="Create User"
         open={isModalOpen}

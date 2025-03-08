@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
+
     const FlightStatusMaster = sequelize.define("flightstatusmaster", {
         status_id: {
             type: DataTypes.INTEGER,
@@ -32,5 +34,4 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false
     });
 
-    return FlightStatusMaster;
-};
+    module.exports= FlightStatusMaster;

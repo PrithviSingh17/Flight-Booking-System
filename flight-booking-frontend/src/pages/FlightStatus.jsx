@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, message, Popconfirm } from "antd";
+import { Table, Button, Modal, message, Popconfirm, Input } from "antd";
 import API from "../services/api";
 import FlightStatusForm from "../components/FlightStatusForm";
 
@@ -7,6 +7,7 @@ function FlightStatus() {
   const [statuses, setStatuses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStatus, setEditingStatus] = useState(null);
+  const [flightNumberFilter, setFlightNumberFilter] = useState("");
 
   useEffect(() => {
     fetchFlightStatuses();
@@ -16,10 +17,9 @@ function FlightStatus() {
     try {
       const res = await API.get("/flight-status", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log("Flight Status Data:", res.data); // Debug log
       setStatuses(res.data);
     } catch (err) {
       console.error("Error fetching flight statuses:", err);
@@ -31,7 +31,7 @@ function FlightStatus() {
     try {
       await API.delete(`/flight-status/${statusId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       message.success("Flight status deleted successfully.");
@@ -45,52 +45,55 @@ function FlightStatus() {
   const handleFormSubmit = async (values) => {
     try {
       if (editingStatus) {
-        // Update flight status
         await API.put(`/flight-status/${editingStatus.status_id}`, values, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
         message.success("Flight status updated successfully.");
       } else {
-        // Create flight status
-        await API.post(
-          "/flight-status/", // Use the correct endpoint
-          values,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token
-            },
-          }
-        );
+        await API.post("/flight-status/", values, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         message.success("Flight status created successfully.");
       }
-      fetchFlightStatuses(); 
-      setIsModalOpen(false); 
-      setEditingStatus(null); 
+      fetchFlightStatuses();
+      setIsModalOpen(false);
+      setEditingStatus(null);
     } catch (err) {
       console.error("Error saving flight status:", err);
       message.error("Failed to save flight status.");
     }
   };
 
+  const filteredStatuses = statuses.filter((status) =>
+    status.flight?.flight_number?.toLowerCase().includes(flightNumberFilter.toLowerCase())
+  );
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Flight Status Management</h2>
 
-      
+      <Input
+        placeholder="Search by flight number"
+        value={flightNumberFilter}
+        onChange={(e) => setFlightNumberFilter(e.target.value)}
+        style={{ marginBottom: "20px", width: "200px" }}
+      />
+
       <Button
         type="primary"
         onClick={() => {
           setEditingStatus(null);
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: "20px" }}
+        style={{ marginBottom: "20px",  marginLeft: "10px" }}
       >
         Create Flight Status
       </Button>
 
-      
       <table className="w-full border-collapse border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
@@ -103,8 +106,8 @@ function FlightStatus() {
           </tr>
         </thead>
         <tbody>
-          {statuses.length > 0 ? (
-            statuses.map((status) => (
+          {filteredStatuses.length > 0 ? (
+            filteredStatuses.map((status) => (
               <tr key={status.status_id} className="text-center">
                 <td className="border border-gray-400 p-2">{status.status_id}</td>
                 <td className="border border-gray-400 p-2">{status.flight_id}</td>
@@ -148,7 +151,6 @@ function FlightStatus() {
         </tbody>
       </table>
 
-      
       <Modal
         title={editingStatus ? "Edit Flight Status" : "Create Flight Status"}
         open={isModalOpen}

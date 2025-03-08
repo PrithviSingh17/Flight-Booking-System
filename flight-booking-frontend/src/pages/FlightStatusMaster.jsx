@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, message, Popconfirm, Modal, Input } from "antd";
 import API from "../services/api";
-import BookingStatusMasterForm from "../components/BookingStatusMasterForm";
+import FlightStatusMasterForm from "../components/FlightStatusMasterForm";
 
-function BookingStatusMaster() {
+function FlightStatusMaster() {
   const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,53 +17,46 @@ function BookingStatusMaster() {
   const fetchStatuses = async () => {
     setLoading(true);
     try {
-      const res = await API.get("/booking-status");
+      const res = await API.get("/flight-status-master");
       if (res.data) {
         setStatuses(res.data);
       } else {
         throw new Error("No data returned from the API");
       }
     } catch (err) {
-      console.error("Error fetching statuses:", err);
-      message.error("Failed to load statuses.");
+      console.error("Error fetching flight statuses:", err);
+      message.error("Failed to load flight statuses.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await API.delete(`/flight-status-master/${id}`);
+      message.success("Flight status deleted successfully.");
+      fetchStatuses();
+    } catch (err) {
+      console.error("Error deleting flight status:", err);
+      message.error("Failed to delete flight status.");
+    }
+  };
+
   const handleFormSubmit = async (values) => {
     try {
-      const payload = {
-        ...values,
-        created_by: values.created_by || editingStatus?.created_by,
-        modified_by: values.modified_by || editingStatus?.modified_by,
-      };
-
       if (editingStatus) {
-        payload.status_id = editingStatus.status_id;
-        await API.put(`/booking-status/${editingStatus.status_id}`, payload);
-        message.success("Status updated successfully.");
+        await API.put(`/flight-status-master/${editingStatus.status_id}`, values);
+        message.success("Flight status updated successfully.");
       } else {
-        await API.post("/booking-status", payload);
-        message.success("Status created successfully.");
+        await API.post("/flight-status-master", values);
+        message.success("Flight status created successfully.");
       }
       fetchStatuses();
       setIsModalOpen(false);
       setEditingStatus(null);
     } catch (err) {
-      console.error("Error saving status:", err);
-      message.error("Failed to save status.");
-    }
-  };
-
-  const handleDelete = async (statusId) => {
-    try {
-      await API.delete(`/booking-status/${statusId}`);
-      message.success("Status deleted successfully.");
-      fetchStatuses();
-    } catch (err) {
-      console.error("Error deleting status:", err);
-      message.error("Failed to delete status.");
+      console.error("Error saving flight status:", err);
+      message.error("Failed to save flight status.");
     }
   };
 
@@ -73,7 +66,7 @@ function BookingStatusMaster() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Booking Status Master</h2>
+      <h2 className="text-xl font-bold mb-4">Flight Status Master</h2>
 
       <Input
         placeholder="Search by status name"
@@ -88,9 +81,9 @@ function BookingStatusMaster() {
           setEditingStatus(null);
           setIsModalOpen(true);
         }}
-        style={{ marginBottom: "20px" , marginLeft: "10px"}}
+        style={{ marginBottom: "20px", marginLeft: "10px" }}
       >
-        Create Status
+        Create Flight Status
       </Button>
 
       <table className="w-full border-collapse border border-gray-400">
@@ -98,8 +91,6 @@ function BookingStatusMaster() {
           <tr className="bg-gray-200">
             <th className="border border-gray-400 p-2">Status ID</th>
             <th className="border border-gray-400 p-2">Status Name</th>
-            <th className="border border-gray-400 p-2">Created By</th>
-            <th className="border border-gray-400 p-2">Modified By</th>
             <th className="border border-gray-400 p-2">Actions</th>
           </tr>
         </thead>
@@ -108,8 +99,6 @@ function BookingStatusMaster() {
             <tr key={status.status_id} className="text-center">
               <td className="border border-gray-400 p-2">{status.status_id}</td>
               <td className="border border-gray-400 p-2">{status.status_name}</td>
-              <td className="border border-gray-400 p-2">{status.created_by}</td>
-              <td className="border border-gray-400 p-2">{status.modified_by}</td>
               <td className="border border-gray-400 p-2">
                 <Button
                   type="link"
@@ -137,7 +126,7 @@ function BookingStatusMaster() {
       </table>
 
       <Modal
-        title={editingStatus ? "Edit Status" : "Create Status"}
+        title={editingStatus ? "Edit Flight Status" : "Create Flight Status"}
         open={isModalOpen}
         onCancel={() => {
           setIsModalOpen(false);
@@ -145,14 +134,10 @@ function BookingStatusMaster() {
         }}
         footer={null}
       >
-        <BookingStatusMasterForm
-          statusData={editingStatus}
-          onSubmit={handleFormSubmit}
-          loading={loading}
-        />
+        <FlightStatusMasterForm statusData={editingStatus} onSubmit={handleFormSubmit} loading={loading} />
       </Modal>
     </div>
   );
 }
 
-export default BookingStatusMaster;
+export default FlightStatusMaster;

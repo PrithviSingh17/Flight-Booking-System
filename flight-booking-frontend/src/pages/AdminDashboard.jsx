@@ -6,6 +6,7 @@ import Users from "./Users";
 import Airports from "./Airports"; 
 import BookingStatusMaster from "./BookingStatusMaster";
 import { Layout, Menu, theme } from "antd";
+import FlightStatusMaster from "./FlightStatusMaster";
 import "../styles/global.css"; // Import global styles
 
 const { Header, Sider, Content } = Layout;
@@ -48,6 +49,7 @@ function AdminDashboard() {
             { key: "users", label: "Users" },
             { key: "airports", label: "Airports" },
             { key: "bookingStatus", label: "Booking Status" },
+            { key: "flightStatusMaster", label: "Flight Status"}
           ]}
         />
       </Sider>
@@ -62,6 +64,7 @@ function AdminDashboard() {
             {activeTab === "users" && <Users />}
             {activeTab === "airports" && <Airports />}
             {activeTab === "bookingStatus" && <BookingStatusMaster />}
+            {activeTab === "flightStatusMaster" && <FlightStatusMaster />}
           </div>
         </Content>
       </Layout>
