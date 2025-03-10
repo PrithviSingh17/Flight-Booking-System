@@ -1,6 +1,5 @@
 const FlightStatusMaster = require("../models/FlightStatusMaster");
-
-console.log(FlightStatusMaster); // Debug: Check if the model is imported correctly
+ // Debug: Check if the model is imported correctly
 
 // Get all statuses
 const getAllStatuses = async (req, res) => {

@@ -1,4 +1,9 @@
 /* Global styles for the entire app */
+
+@import './Animations.css';
+@import './CustomStyles.css';
+@import './GlobalOverrides.css';
+
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;

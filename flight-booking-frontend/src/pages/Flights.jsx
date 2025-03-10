@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, message, Popconfirm, Modal, Input } from "antd";
 import API from "../services/api";
 import FlightForm from "../components/FlightForm";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { CSSTransition } from "react-transition-group";
+import "../styles/Animations.css";
 
 function Flights() {
   const [flights, setFlights] = useState([]);
@@ -72,6 +75,12 @@ function Flights() {
   );
 
   return (
+    <CSSTransition
+  in={true}
+  timeout={300}
+  classNames="slide-in-left"
+  unmountOnExit
+>
     <div>
       <h2 className="text-xl font-bold mb-4">Flights Management</h2>
 
@@ -89,6 +98,7 @@ function Flights() {
           setIsModalOpen(true);
         }}
         style={{ marginBottom: "20px", marginLeft: "10px" }}
+        icon={<PlusOutlined />}
       >
         Create Flight
       </Button>
@@ -133,6 +143,7 @@ function Flights() {
                     setEditingFlight(flight);
                     setIsModalOpen(true);
                   }}
+                  icon={<EditOutlined />}
                 >
                   Edit
                 </Button>
@@ -142,7 +153,7 @@ function Flights() {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button type="link" danger>
+                  <Button type="link" danger icon={<DeleteOutlined />}>
                     Delete
                   </Button>
                 </Popconfirm>
@@ -164,6 +175,7 @@ function Flights() {
         <FlightForm flightData={editingFlight} onSubmit={handleFormSubmit} loading={loading} />
       </Modal>
     </div>
+    </CSSTransition>
   );
 }
 

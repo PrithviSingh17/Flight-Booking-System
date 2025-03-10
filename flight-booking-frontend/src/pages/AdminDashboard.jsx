@@ -8,6 +8,8 @@ import BookingStatusMaster from "./BookingStatusMaster";
 import { Layout, Menu, theme } from "antd";
 import FlightStatusMaster from "./FlightStatusMaster";
 import "../styles/global.css"; // Import global styles
+import { CSSTransition } from "react-transition-group";
+import "../styles/Animations.css";
 
 const { Header, Sider, Content } = Layout;
 
@@ -26,8 +28,15 @@ function AdminDashboard() {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  
   return (
+
+    <CSSTransition
+  in={true} // Condition to trigger the animation
+  timeout={300}
+  classNames="slide-in-left"
+  unmountOnExit
+>
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
@@ -48,8 +57,8 @@ function AdminDashboard() {
             { key: "flightStatus", label: "Flight Status" },
             { key: "users", label: "Users" },
             { key: "airports", label: "Airports" },
-            { key: "bookingStatus", label: "Booking Status" },
-            { key: "flightStatusMaster", label: "Flight Status"}
+            { key: "bookingStatus", label: "Booking Status Master"  },
+            { key: "flightStatusMaster", label: "Flight Status Master"}
           ]}
         />
       </Sider>
@@ -69,6 +78,7 @@ function AdminDashboard() {
         </Content>
       </Layout>
     </Layout>
+    </CSSTransition>
   );
 }
 

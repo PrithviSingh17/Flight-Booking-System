@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, message, Popconfirm, Modal, Input } from "antd";
 import API from "../services/api";
 import AirportForm from "../components/AirportForm";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Ensure this import is present
+import { CSSTransition } from "react-transition-group"; // Ensure this import is present
+import "../styles/Animations.css"; // Ensure this import is present
 
 function Airports() {
   const [airports, setAirports] = useState([]);
@@ -44,6 +47,7 @@ function Airports() {
 
   const handleFormSubmit = async (values) => {
     try {
+      console.log("Payload being sent:", values); // Debug log
       if (editingAirport) {
         await API.put(`/airports/airports/${editingAirport.airport_code}`, values);
         message.success("Airport updated successfully.");
@@ -65,84 +69,93 @@ function Airports() {
   );
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Airports Management</h2>
+    <CSSTransition
+      in={true} // Condition to trigger the animation
+      timeout={300} // Animation duration
+      classNames="slide-in-left" // Animation class
+      unmountOnExit // Unmount the component when it exits
+    >
+      <div>
+        <h2 className="text-xl font-bold mb-4">Airports Management</h2>
 
-      <Input
-        placeholder="Search by city"
-        value={cityFilter}
-        onChange={(e) => setCityFilter(e.target.value)}
-        style={{ marginBottom: "20px", width: "200px" }}
-      />
+        <Input
+          placeholder="Search by city"
+          value={cityFilter}
+          onChange={(e) => setCityFilter(e.target.value)}
+          style={{ marginBottom: "20px", width: "200px" }}
+        />
 
-      <Button
-        type="primary"
-        onClick={() => {
-          setEditingAirport(null);
-          setIsModalOpen(true);
-        }}
-        style={{ marginBottom: "20px", marginLeft: "10px"}}
-      >
-        Create Airport
-      </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            setEditingAirport(null);
+            setIsModalOpen(true);
+          }}
+          style={{ marginBottom: "20px", marginLeft: "10px" }}
+          icon={<PlusOutlined />}
+        >
+          Create Airport
+        </Button>
 
-      <table className="w-full border-collapse border border-gray-400">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border border-gray-400 p-2">Airport Code</th>
-            <th className="border border-gray-400 p-2">Airport Name</th>
-            <th className="border border-gray-400 p-2">City</th>
-            <th className="border border-gray-400 p-2">State</th>
-            <th className="border border-gray-400 p-2">Country</th>
-            <th className="border border-gray-400 p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAirports.map((airport) => (
-            <tr key={airport.airport_code} className="text-center">
-              <td className="border border-gray-400 p-2">{airport.airport_code}</td>
-              <td className="border border-gray-400 p-2">{airport.airport_name}</td>
-              <td className="border border-gray-400 p-2">{airport.city}</td>
-              <td className="border border-gray-400 p-2">{airport.state}</td>
-              <td className="border border-gray-400 p-2">{airport.country}</td>
-              <td className="border border-gray-400 p-2">
-                <Button
-                  type="link"
-                  onClick={() => {
-                    setEditingAirport(airport);
-                    setIsModalOpen(true);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Popconfirm
-                  title="Are you sure you want to delete this airport?"
-                  onConfirm={() => handleDelete(airport.airport_code)}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button type="link" danger>
-                    Delete
-                  </Button>
-                </Popconfirm>
-              </td>
+        <table className="w-full border-collapse border border-gray-400">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-gray-400 p-2">Airport Code</th>
+              <th className="border border-gray-400 p-2">Airport Name</th>
+              <th className="border border-gray-400 p-2">City</th>
+              <th className="border border-gray-400 p-2">State</th>
+              <th className="border border-gray-400 p-2">Country</th>
+              <th className="border border-gray-400 p-2">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredAirports.map((airport) => (
+              <tr key={airport.airport_code} className="text-center">
+                <td className="border border-gray-400 p-2">{airport.airport_code}</td>
+                <td className="border border-gray-400 p-2">{airport.airport_name}</td>
+                <td className="border border-gray-400 p-2">{airport.city}</td>
+                <td className="border border-gray-400 p-2">{airport.state}</td>
+                <td className="border border-gray-400 p-2">{airport.country}</td>
+                <td className="border border-gray-400 p-2">
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      setEditingAirport(airport);
+                      setIsModalOpen(true);
+                    }}
+                    icon={<EditOutlined />}
+                  >
+                    Edit
+                  </Button>
+                  <Popconfirm
+                    title="Are you sure you want to delete this airport?"
+                    onConfirm={() => handleDelete(airport.airport_code)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="link" danger icon={<DeleteOutlined />}>
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <Modal
-        title={editingAirport ? "Edit Airport" : "Create Airport"}
-        open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setEditingAirport(null);
-        }}
-        footer={null}
-      >
-        <AirportForm airportData={editingAirport} onSubmit={handleFormSubmit} loading={loading} />
-      </Modal>
-    </div>
+        <Modal
+          title={editingAirport ? "Edit Airport" : "Create Airport"}
+          open={isModalOpen}
+          onCancel={() => {
+            setIsModalOpen(false);
+            setEditingAirport(null);
+          }}
+          footer={null}
+        >
+          <AirportForm airportData={editingAirport} onSubmit={handleFormSubmit} loading={loading} />
+        </Modal>
+      </div>
+    </CSSTransition>
   );
 }
 

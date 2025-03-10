@@ -24,73 +24,77 @@ const getStatusById = async (req, res) => {
   }
 };
 
-// Create a new status
-const userMapping = {
-    "admin_static_id": 1, // Map "admin_static_id" to integer 1
-    // Add other mappings as needed
-  };
-  
+
   // Create a new status
   const createStatus = async (req, res) => {
     try {
-      const { status_name } = req.body;
+      const { status_id, status_name } = req.body;
+      const created_by = req.user.user_id; // Dynamically set created_by to the logged-in user's ID
   
-      // Debug log to check req.user
-      console.log("Request User:", req.user);
-  
-      // Map req.user.user_id to a valid integer
-      const created_by = userMapping[req.user.user_id];
-      const modified_by = userMapping[req.user.user_id];
-  
-      if (created_by === undefined || modified_by === undefined) {
-        throw new Error("Invalid user_id mapping");
+      // Check if the status_id already exists
+      const existingStatus = await BookingStatusMaster.findByPk(status_id);
+      if (existingStatus) {
+        return res.status(400).json({ error: "status_id already exists" });
       }
   
       const newStatus = await BookingStatusMaster.create({
+        status_id,
         status_name,
-        created_by, // Use the mapped integer
-        modified_by, // Use the mapped integer
+        created_by,
+        modified_by: created_by, // Set modified_by to the same user
       });
-  
       res.status(201).json(newStatus);
     } catch (error) {
-      console.error("Error creating booking status:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
   };
   
   // Update a status by ID
   const updateStatus = async (req, res) => {
     try {
-      const { status_name } = req.body;
+      const { status_id, status_name } = req.body;
+      const created_by = req.user.user_id; // Dynamically set created_by to the logged-in user's ID
   
-      // Map req.user.user_id to a valid integer
-      const modified_by = userMapping[req.user.user_id];
-  
-      if (modified_by === undefined) {
-        throw new Error("Invalid user_id mapping");
+      // Check if the status_id already exists
+      const existingStatus = await BookingStatusMaster.findByPk(status_id);
+      if (existingStatus) {
+        return res.status(400).json({ error: "status_id already exists" });
       }
   
-      const updatedStatus = await BookingStatusMaster.update(
-        {
-          status_name,
-          modified_by, // Use the mapped integer
-        },
-        {
-          where: { status_id: req.params.id },
-        }
-      );
-  
-      if (updatedStatus[0] === 1) {
-        res.json({ message: "Status updated successfully" });
-      } else {
-        res.status(404).json({ message: "Status not found" });
-      }
+      const newStatus = await BookingStatusMaster.create({
+        status_id,
+        status_name,
+        created_by,
+        modified_by: created_by, // Set modified_by to the same user
+      });
+      res.status(201).json(newStatus);
     } catch (error) {
-      console.error("Error updating booking status:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
   };
+  
+  // Update a booking status
+  exports.updateBookingStatus = async (req, res) => {
+    try {
+      const { status_id } = req.params;
+      const { status_name } = req.body;
+      const modified_by = req.user.user_id; // Dynamically set modified_by to the logged-in user's ID
+  
+      const status = await BookingStatusMaster.findByPk(status_id);
+      if (!status) {
+        return res.status(404).json({ error: "Booking status not found" });
+      }
+  
+      status.status_name = status_name;
+      status.modified_by = modified_by;
+      await status.save();
+  
+      res.status(200).json(status);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
   
 
 // Delete a status by ID

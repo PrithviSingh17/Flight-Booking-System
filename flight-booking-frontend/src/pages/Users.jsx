@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, message, Popconfirm, Input } from "antd";
 import API from "../services/api";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { CSSTransition } from "react-transition-group";
+import "../styles/Animations.css";
 import UserForm from "../components/UserForm";
 
 function Users() {
@@ -62,6 +65,12 @@ function Users() {
   );
 
   return (
+    <CSSTransition
+  in={true}
+  timeout={300}
+  classNames="slide-in-left"
+  unmountOnExit
+>
     <div>
       <h2 className="text-xl font-bold mb-4">Users Management</h2>
 
@@ -78,6 +87,7 @@ function Users() {
           setIsModalOpen(true);
         }}
         style={{ marginBottom: "20px", marginLeft: "10px" }}
+        icon={<PlusOutlined />}
       >
         Create User
       </Button>
@@ -109,7 +119,7 @@ function Users() {
                     okText="Yes"
                     cancelText="No"
                   >
-                    <Button type="link" danger>
+                    <Button type="link" danger icon={<DeleteOutlined />}>
                       Delete
                     </Button>
                   </Popconfirm>
@@ -137,7 +147,9 @@ function Users() {
         <UserForm onSubmit={handleFormSubmit} />
       </Modal>
     </div>
+    </CSSTransition>
   );
+  
 }
 
 export default Users;

@@ -62,7 +62,7 @@ exports.updateAirport = async (req, res) => {
     airport.city = city || airport.city;
     airport.state = state || airport.state;
     airport.country = country || airport.country;
-    airport.modified_by = req.user.id; // Assuming you have user info in req.user
+    airport.modified_by = req.user.user_id; // Assuming you have user info in req.user
 
     await airport.save(); // Save the updated airport
 
