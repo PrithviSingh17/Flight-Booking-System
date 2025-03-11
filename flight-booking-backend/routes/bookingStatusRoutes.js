@@ -9,12 +9,12 @@ router.get("/",authenticateUser, bookingStatusController.getAllStatuses);
 router.get("/:id",authenticateUser,  bookingStatusController.getStatusById);
 
 // Create a new status
-router.post("/",authenticateUser, bookingStatusController.createStatus);
+router.post("/",authenticateUser,authorizeRole(["admin"]), bookingStatusController.createStatus);
 
 // Update a status by ID
-router.put("/:id",authenticateUser, bookingStatusController.updateStatus);
+router.put("/:id",authenticateUser,authorizeRole(["admin"]), bookingStatusController.updateStatus);
 
 // Delete a status by ID
-router.delete("/:id",authenticateUser,  bookingStatusController.deleteStatus);
+router.delete("/:id",authenticateUser, authorizeRole(["admin"]), bookingStatusController.deleteStatus);
 
 module.exports = router;

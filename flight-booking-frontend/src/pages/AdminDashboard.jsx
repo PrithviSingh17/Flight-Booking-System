@@ -7,6 +7,7 @@ import Airports from "./Airports";
 import BookingStatusMaster from "./BookingStatusMaster";
 import { Layout, Menu, theme } from "antd";
 import FlightStatusMaster from "./FlightStatusMaster";
+import PaymentMethodMaster from "./PaymentMethodMaster";
 import "../styles/global.css"; // Import global styles
 import { CSSTransition } from "react-transition-group";
 import "../styles/Animations.css";
@@ -58,7 +59,8 @@ function AdminDashboard() {
             { key: "users", label: "Users" },
             { key: "airports", label: "Airports" },
             { key: "bookingStatus", label: "Booking Status Master"  },
-            { key: "flightStatusMaster", label: "Flight Status Master"}
+            { key: "flightStatusMaster", label: "Flight Status Master"},
+            { key: "paymentMethodMaster", label: "Payment Method Master" }
           ]}
         />
       </Sider>
@@ -74,6 +76,7 @@ function AdminDashboard() {
             {activeTab === "airports" && <Airports />}
             {activeTab === "bookingStatus" && <BookingStatusMaster />}
             {activeTab === "flightStatusMaster" && <FlightStatusMaster />}
+            {activeTab === "paymentMethodMaster" && <PaymentMethodMaster />}
           </div>
         </Content>
       </Layout>

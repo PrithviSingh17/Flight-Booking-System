@@ -3,19 +3,17 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const PaymentMethodMaster = require("../models/PaymentMethodMaster");
 
-
+// Create a new payment
 exports.createPayment = async (req, res) => {
     try {
-        console.log("Decoded User in req:", req.user); 
-
         const newPayment = await Payment.create({
             booking_id: req.body.booking_id,
             user_id: req.body.user_id,
             amount: req.body.amount,
             payment_method_id: req.body.payment_method_id,
             payment_status: req.body.payment_status ?? 'Pending',
-            created_by: req.user.user_id,  
-            modified_by: req.user.user_id  
+            created_by: req.user.user_id,
+            modified_by: req.user.user_id
         });
 
         res.status(201).json(newPayment);
@@ -25,10 +23,16 @@ exports.createPayment = async (req, res) => {
     }
 };
 
-
+// Get all payments
 exports.getAllPayments = async (req, res) => {
     try {
-        const payments = await Payment.findAll();
+        const payments = await Payment.findAll({
+            include: [
+                { model: Booking },
+                { model: User },
+                { model: PaymentMethodMaster }
+            ]
+        });
         res.status(200).json(payments);
     } catch (error) {
         console.error("Error Fetching Payments:", error);
@@ -36,7 +40,7 @@ exports.getAllPayments = async (req, res) => {
     }
 };
 
-
+// Get payment by ID
 exports.getPaymentById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -56,10 +60,10 @@ exports.getPaymentById = async (req, res) => {
     }
 };
 
-
+// Update payment
 exports.updatePayment = async (req, res) => {
     try {
-        const { id } = req.params;  
+        const { id } = req.params;
         const { payment_status, amount, payment_method_id } = req.body;
 
         const payment = await Payment.findByPk(id);
@@ -71,7 +75,7 @@ exports.updatePayment = async (req, res) => {
             payment_status,
             amount,
             payment_method_id,
-            modified_by: req.user.id  
+            modified_by: req.user.user_id
         });
 
         res.status(200).json({ message: "Payment updated successfully", payment });
@@ -81,9 +85,7 @@ exports.updatePayment = async (req, res) => {
     }
 };
 
-
-
-
+// Delete payment
 exports.deletePayment = async (req, res) => {
     try {
         const { id } = req.params;

@@ -10,12 +10,12 @@ router.get("/", authenticateUser, flightStatusMasterController.getAllStatuses);
 router.get("/:id", authenticateUser, flightStatusMasterController.getStatusById);
 
 // Create a new status
-router.post("/", authenticateUser, flightStatusMasterController.createStatus);
+router.post("/", authenticateUser,authorizeRole(["admin"]), flightStatusMasterController.createStatus);
 
 // Update a status by ID
-router.put("/:id", authenticateUser, flightStatusMasterController.updateStatus);
+router.put("/:id", authenticateUser, authorizeRole(["admin"]),flightStatusMasterController.updateStatus);
 
 // Delete a status by ID
-router.delete("/:id", authenticateUser, flightStatusMasterController.deleteStatus);
+router.delete("/:id", authenticateUser,authorizeRole(["admin"]), flightStatusMasterController.deleteStatus);
 
 module.exports = router;
