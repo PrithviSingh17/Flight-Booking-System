@@ -5,35 +5,56 @@ const jwt = require("jsonwebtoken");
 
 exports.registerUser = async (req, res) => {
   try {
-      console.log("Request Body:", req.body); 
+    console.log("Request Body:", req.body);
 
-      const { name, email, phone, password, role, created_by, modified_by } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
-      if (!name || !email || !phone || !password || !role || !created_by || !modified_by) {
-          return res.status(400).json({ error: "All fields except timestamps are required" });
-      }
+    // Validate required fields
+    if (!name || !email || !phone || !password || !role) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      console.log("Hashed Password:", hashedPassword); 
+    // Determine created_by and modified_by
+    let createdBy, modifiedBy;
 
-      const newUser = await User.create({
-          name,
-          email,
-          phone,
-          password_hash: hashedPassword,
-          role,
-          created_by,
-          modified_by
+    if (req.user) {
+      // If the request is made by a logged-in user (e.g., an admin), use their user_id
+      createdBy = req.user.user_id;
+      modifiedBy = req.user.user_id;
+    } else {
+      // If it's a self-registration, set created_by and modified_by to null initially
+      createdBy = 1;
+      modifiedBy = 1;
+    }
+
+    // Create the user
+    const newUser = await User.create({
+      name,
+      email,
+      phone,
+      password_hash: hashedPassword,
+      role,
+      created_by: createdBy,
+      modified_by: modifiedBy,
+    });
+
+    // For self-registration, update created_by and modified_by to the new user's ID
+    if (!req.user) {
+      await newUser.update({
+        created_by: newUser.user_id,
+        modified_by: newUser.user_id,
       });
+    }
 
-      console.log("User Created Successfully:", newUser); 
+    console.log("User Created Successfully:", newUser);
 
-      res.status(201).json({ message: "User registered successfully", user: newUser });
-
+    res.status(201).json({ message: "User registered successfully", user: newUser });
   } catch (error) {
-      console.error("Database Error:", error); 
-      res.status(500).json({ error: error.message });
+    console.error("Database Error:", error);
+    res.status(500).json({ error: error.message });
   }
 };
 

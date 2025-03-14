@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button , Select} from "antd";
+import { Form, Input, Button, Select } from "antd";
 
 function UserForm({ onSubmit, initialValues }) {
   const [form] = Form.useForm();
@@ -38,12 +38,6 @@ function UserForm({ onSubmit, initialValues }) {
           <Select.Option value="Admin">Admin</Select.Option>
           <Select.Option value="User">User</Select.Option>
         </Select>
-      </Form.Item>
-      <Form.Item label="Created By" name="created_by" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label="Modified By" name="modified_by" rules={[{ required: true }]}>
-        <Input />
       </Form.Item>
       <Button type="primary" htmlType="submit">
         {initialValues ? "Update" : "Create"}
