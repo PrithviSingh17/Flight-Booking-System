@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { Form, Input, Button, Card } from "antd";
+import {jwtDecode} from "jwt-decode"; // Install jwt-decode package
 import "../styles/Login.css"; // Custom CSS for the login page
 
 function Login() {
@@ -13,7 +14,12 @@ function Login() {
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (token) {
-      navigate("/admin", { replace: true });
+      const decoded = jwtDecode(token);
+      if (decoded.role === "Admin") {
+        navigate("/admin", { replace: true }); // Redirect to admin dashboard
+      } else {
+        navigate("/Forbidden", { replace: true }); // Redirect to user dashboard
+      }
     }
   }, []);
 
@@ -22,7 +28,16 @@ function Login() {
       const res = await API.post("/users/login", values); // Use `values` from the form
       console.log("Login Successful:", res.data);
       sessionStorage.setItem("token", res.data.token); // Store token in sessionStorage
-      navigate("/admin", { replace: true }); // Redirect to admin dashboard
+
+      // Decode the token to get the user's role
+      const decoded = jwtDecode(res.data.token);
+
+      // Redirect based on role
+      if (decoded.role === "Admin") {
+        navigate("/admin", { replace: true }); // Redirect to admin dashboard
+      } else {
+        navigate("/Forbidden", { replace: true }); // Redirect to user dashboard
+      }
     } catch (err) {
       alert("Login failed: " + err.response?.data?.error);
     }

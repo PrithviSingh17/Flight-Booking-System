@@ -64,20 +64,20 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-   
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
-    
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-    
-    const token = jwt.sign({ user_id: user.user_id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    // Include the user's role in the JWT token payload
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    res.json({ message: "Login successful", token });
+    res.json({ message: "Login successful", token, role: user.role });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

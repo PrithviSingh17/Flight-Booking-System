@@ -1,6 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
+import Forbidden from "./pages/Forbidden"; // Import the Forbidden component
+
 import Login from "./pages/Login";
 import "./styles/global.css"; // Import global styles
 
@@ -22,6 +24,7 @@ function App() {
 
         {/* Admin Dashboard */}
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/forbidden" element={<Forbidden />}/>
       </Routes>
     </Router>
   );
