@@ -101,9 +101,25 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    // Extract the user_id and role from the JWT token (stored in req.user after authentication)
+    const loggedInUserId = req.user.user_id;
+    const loggedInUserRole = req.user.role;
 
+    // Extract the requested user_id from the URL parameters
+    const requestedUserId = parseInt(req.params.id);
+
+    // If the logged-in user is not an admin, restrict access to their own data
+    if (loggedInUserRole !== "Admin" && loggedInUserId !== requestedUserId) {
+      return res.status(403).json({ error: "Unauthorized: You can only access your own information" });
+    }
+
+    // Fetch the user's data from the database
+    const user = await User.findByPk(requestedUserId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Return the user's data
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });

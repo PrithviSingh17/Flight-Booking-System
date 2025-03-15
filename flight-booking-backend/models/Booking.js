@@ -81,4 +81,5 @@ Booking.belongsTo(Flight, {
     as: "flight",
   });
     
+
 module.exports = Booking;
