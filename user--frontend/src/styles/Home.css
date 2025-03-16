@@ -1,0 +1,201 @@
+/* Global Styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+}
+
+/* Home Container */
+.home-container {
+  text-align: center;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: black; /* Changed to black */
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+}
+
+.header .logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.header .auth-buttons .ant-btn {
+  margin-left: 10px;
+  background-color: #ff6b81; /* Coral pink */
+  border-color: #ff6b81;
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+}
+
+.header .auth-buttons .ant-btn:hover {
+  background-color: #ff4757; /* Darker coral pink */
+  border-color: #ff4757;
+}
+
+/* Hero Section */
+.hero-section {
+  width: 100%;
+  height: 300px; /* Reduced height to 300px */
+  background-image: url('../assets/home1.jpg'); /* Use the local hero image */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 1s ease-in-out;
+  position: relative;
+}
+
+/* Overlay for Hero Section */
+
+
+/* Search Bar Section */
+.search-section {
+  width: 100%;
+  padding: 40px 0; /* Increased vertical padding */
+  background-color: black; /* Changed to black */
+  position: relative;
+  z-index: 1;
+  margin-top: 0; /* Place search bar below the hero image */
+}
+
+.search-form {
+  max-width: 1200px; /* Limit width for better readability */
+  margin: 0 auto; /* Center the search bar */
+  display: flex;
+  gap: 20px; /* Increased gap between inputs */
+  padding: 20px;
+  border-radius: 12px; /* Rounded corners */
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+}
+
+.search-form .ant-form-item {
+  flex: 1; /* Each input takes equal space */
+  margin: 0; /* Remove default margins */
+}
+
+.search-input {
+  width: 100%;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+  background-color: white; /* Changed to white for better readability */
+  color: black; /* Changed to black for better readability */
+  padding: 12px 16px; /* Increased padding for better spacing */
+}
+
+.search-input::placeholder {
+  color: rgba(0, 0, 0, 0.7); /* Dark placeholder text */
+}
+
+.search-input:hover {
+  border-color: #1e90ff; /* Bright blue */
+  box-shadow: 0 0 8px rgba(30, 144, 255, 0.5); /* Glow effect */
+}
+
+.search-button {
+  background-color: #1e90ff; /* Bright blue */
+  border-color: #1e90ff;
+  border-radius: 8px; /* Rounded corners */
+  transition: all 0.3s ease;
+  font-weight: bold;
+  padding: 12px 16px; /* Match padding with input fields */
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+  color: white; /* White text */
+  flex: 1; /* Make the button take equal space */
+  height: 100%; /* Ensure the button height matches the input fields */
+}
+
+.search-button:hover {
+  background-color: #0077b6; /* Darker blue */
+  border-color: #0077b6;
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+/* Flight Results */
+.flight-results {
+  margin: 40px 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.flight-results h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #1e90ff; /* Bright blue */
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+}
+
+/* Indian Cities Carousel */
+.indian-cities-carousel {
+  margin: 40px 0;
+  padding: 30px 20px;
+  background-color: white;
+  text-align: center;
+}
+
+.indian-cities-carousel h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #1e90ff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.cities-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px; /* Space between city cards */
+}
+
+.city-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.city-image {
+  width: 150px; /* Decreased circle size */
+  height: 150px;
+  border-radius: 50%; /* Circular shape */
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.city-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+}
+
+.city-name {
+  margin-top: 40px; /* Increased space between image and name */
+  font-size: 18px; /* Adjusted font size */
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+/* Hover Effect */
+.city-card:hover .city-image {
+  transform: scale(1.4); /* Enlarge on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}

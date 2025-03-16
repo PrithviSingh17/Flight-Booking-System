@@ -1,0 +1,9 @@
+.dashboard-container {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .dashboard-container h1 {
+    margin-bottom: 20px;
+    color: #1890ff;
+  }

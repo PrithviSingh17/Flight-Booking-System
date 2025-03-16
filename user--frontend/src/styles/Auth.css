@@ -1,0 +1,102 @@
+/* Auth Container */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden; /* Prevent scroll */
+  }
+  
+  /* Background Image */
+  .background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/Login.jpg'); /* Ensure this path is correct */
+    background-size: cover;
+    background-position: center;
+    z-index: 1; /* Background image should be behind the overlay and login card */
+  }
+  
+  /* Overlay for Background Image */
+  .background-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay for better readability */
+    z-index: 2;
+  }
+  
+  /* Auth Card */
+  .auth-card {
+    width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    z-index: 3;
+    animation: slideIn 0.5s ease-in-out; /* Add animation */
+  }
+  
+  /* Welcome Message */
+  .welcome-message {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1e90ff; /* Bright blue */
+  }
+  
+  /* Form Inputs */
+  .ant-form-item-label {
+    font-weight: bold;
+  }
+  
+  /* Login/Register Button */
+  .ant-btn-primary {
+    background-color: #1e90ff; /* Bright blue */
+    border-color: #1e90ff;
+    border-radius: 4px;
+  }
+  
+  .ant-btn-primary:hover {
+    background-color: #0077b6; /* Darker blue */
+    border-color: #0077b6;
+  }
+  
+  /* Auth Footer (for "Don't have an account?" and "Already have an account?") */
+  .auth-footer {
+    margin-top: 16px;
+    text-align: center;
+  }
+  
+  .auth-footer span {
+    color: #1e90ff; /* Bright blue */
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .auth-footer span:hover {
+    text-decoration: underline;
+  }
+  
+  /* Animations */
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
