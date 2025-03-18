@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, DatePicker, Table, message, Select } from "antd"; // Remove InputNumber import
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Home.css";
 import IndianCitiesCarousel from "../components/IndianCitiesCarousel";
@@ -170,7 +170,11 @@ const Home = () => {
         <div className="logo">
           <img src={logo} alt="Flight Booking Logo" className="logo-img" />
         </div>
-
+        <nav className="nav-links">
+          <Link to="/about-us">About Us </Link>
+          <Link to="/contact-us">Contact Us </Link>
+          <Link to="/help">Help</Link>
+        </nav>
         <div className="auth-buttons">
           {sessionStorage.getItem("token") ? (
             <>
