@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Button, Form, Input, DatePicker, Table, message } from "antd";
-import { useNavigate, Link } from "react-router-dom";
+import { Button, Form, DatePicker, Table, message, Select } from "antd"; // Remove InputNumber import
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Home.css";
 import IndianCitiesCarousel from "../components/IndianCitiesCarousel";
 import logo from "../assets/logo1.png";
+
+const { Option } = Select;
 
 const Home = () => {
   const [flights, setFlights] = useState([]);
@@ -22,23 +24,51 @@ const Home = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { departureCity, arrivalCity, departureDate } = values;
+      const { departureCity, arrivalCity, departureDate, returnDate, passengers } = values;
 
-      const res = await API.get("/flights/search", {
+      // Fetch outbound flights (departureCity to arrivalCity)
+      const outboundResponse = await API.get("/flights/search", {
         params: {
           departure_city: departureCity,
           arrival_city: arrivalCity,
           departure_date: departureDate?.format("YYYY-MM-DD"),
+          passengers: passengers,
         },
       });
 
-      const formattedFlights = res.data.map((flight) => ({
+      let returnFlights = [];
+      if (returnDate) {
+        // Fetch return flights (arrivalCity to departureCity)
+        const returnResponse = await API.get("/flights/search", {
+          params: {
+            departure_city: arrivalCity,
+            arrival_city: departureCity,
+            departure_date: returnDate?.format("YYYY-MM-DD"),
+            passengers: passengers,
+          },
+        });
+        returnFlights = returnResponse.data;
+      }
+
+      // Combine outbound and return flights
+      const formattedOutboundFlights = outboundResponse.data.map((flight) => ({
         ...flight,
+        type: "Outbound",
         departure_time: formatTime(flight.departure_time),
         arrival_time: formatTime(flight.arrival_time),
       }));
 
-      setFlights(formattedFlights);
+      const formattedReturnFlights = returnFlights.map((flight) => ({
+        ...flight,
+        type: "Return",
+        departure_time: formatTime(flight.departure_time),
+        arrival_time: formatTime(flight.arrival_time),
+      }));
+
+      // Combine both outbound and return flights into a single array
+      const allFlights = [...formattedOutboundFlights, ...formattedReturnFlights];
+
+      setFlights(allFlights);
       setShowResults(true);
       message.success("Flights found!");
     } catch (err) {
@@ -53,10 +83,15 @@ const Home = () => {
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     message.success("Logged out successfully!");
-    window.location.reload(); // Refresh the page to reflect logged-out state
+    window.location.reload();
   };
 
   const columns = [
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+    },
     {
       title: "Flight Number",
       dataIndex: "flight_number",
@@ -103,20 +138,38 @@ const Home = () => {
     },
   ];
 
+  // List of cities for dropdown
+  const cities = [
+    "New Delhi",
+    "Bengaluru",
+    "Chennai",
+    "Hyderabad",
+    "Kolkata",
+    "Pune",
+    "Ahmedabad",
+    "Goa",
+    "Kochi",
+    "Jaipur",
+    "Lucknow",
+    "Bhubaneswar",
+    "Srinagar",
+    "Vijayawada",
+    "Thiruvananthapuram",
+    "Chandigarh",
+    "Mumbai",
+    "Siliguri",
+  ];
+
+  // Passengers options (1 to 10)
+  const passengersOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+
   return (
     <div className="home-container">
       {/* Header */}
       <header className="header">
-        
-      <div className="logo">
-  <img src={logo} alt="Flight Booking Logo" className="logo-img" />
-</div>
-
-<nav className="nav-links">
-          <Link to="/about-us">About Us </Link>
-          <Link to="/contact-us">Contact Us </Link>
-          <Link to="/help">Help</Link>
-        </nav>
+        <div className="logo">
+          <img src={logo} alt="Flight Booking Logo" className="logo-img" />
+        </div>
 
         <div className="auth-buttons">
           {sessionStorage.getItem("token") ? (
@@ -130,7 +183,7 @@ const Home = () => {
             </>
           ) : (
             <Button type="primary" onClick={() => navigate("/auth")}>
-              Sign In /  Sign Up
+              Sign In / Sign Up
             </Button>
           )}
         </div>
@@ -142,14 +195,57 @@ const Home = () => {
       {/* Search Bar Section */}
       <div className="search-section">
         <Form layout="inline" onFinish={onFinish} className="search-form">
-          <Form.Item name="departureCity" rules={[{ required: true }]}>
-            <Input placeholder="Departure City" className="search-input" />
+          <Form.Item name="departureCity" rules={[{ required: true, message: "Please select departure city!" }]}>
+            <Select
+              showSearch
+              placeholder="Departure City"
+              className="search-input"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {cities.map((city) => (
+                <Option key={city} value={city}>
+                  {city}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
-          <Form.Item name="arrivalCity" rules={[{ required: true }]}>
-            <Input placeholder="Arrival City" className="search-input" />
+          <Form.Item name="arrivalCity" rules={[{ required: true, message: "Please select arrival city!" }]}>
+            <Select
+              showSearch
+              placeholder="Arrival City"
+              className="search-input"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {cities.map((city) => (
+                <Option key={city} value={city}>
+                  {city}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
-          <Form.Item name="departureDate" rules={[{ required: true }]}>
-            <DatePicker style={{ width: "100%" }} className="search-input" />
+          <Form.Item name="departureDate" rules={[{ required: true, message: "Please select departure date!" }]}>
+            <DatePicker style={{ width: "100%" }} className="search-input" placeholder="Departure Date" />
+          </Form.Item>
+          <Form.Item name="returnDate">
+            <DatePicker style={{ width: "100%" }} className="search-input" placeholder="Return Date" />
+          </Form.Item>
+          <Form.Item name="passengers" rules={[{ required: true, message: "Please select number of passengers!" }]}>
+            <Select
+              placeholder="Passengers"
+              className="search-input"
+            >
+              {passengersOptions.map((num) => (
+                <Option key={num} value={num}>
+                  {num}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} className="search-button">
