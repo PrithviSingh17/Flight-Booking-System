@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, Form, Input, DatePicker, Table, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Home.css";
 import IndianCitiesCarousel from "../components/IndianCitiesCarousel";
+import logo from "../assets/logo1.png";
 
 const Home = () => {
   const [flights, setFlights] = useState([]);
@@ -106,7 +107,17 @@ const Home = () => {
     <div className="home-container">
       {/* Header */}
       <header className="header">
-        <div className="logo">Flight Booking</div>
+        
+      <div className="logo">
+  <img src={logo} alt="Flight Booking Logo" className="logo-img" />
+</div>
+
+<nav className="nav-links">
+          <Link to="/about-us">About Us </Link>
+          <Link to="/contact-us">Contact Us </Link>
+          <Link to="/help">Help</Link>
+        </nav>
+
         <div className="auth-buttons">
           {sessionStorage.getItem("token") ? (
             <>

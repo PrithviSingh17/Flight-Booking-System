@@ -7,7 +7,7 @@ import DelhiImage from "../assets/Delhi.jpg";
 import BangaloreImage from "../assets/Bangalore.webp";
 import JaipurImage from "../assets/Jaipur.jpg";
 import ChennaiImage from "../assets/Chennai.jpg";
-import LucknowImage from "../assets/Ayodhya.jpg";
+import LucknowImage from "../assets/Lucknow.jpg";
 
 const IndianCitiesCarousel = () => {
   const cities = [

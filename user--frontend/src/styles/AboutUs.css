@@ -1,0 +1,122 @@
+/* About Us Page */
+.about-us-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 97vh;
+    background-color: #f0f2f5;
+    padding: 10px 10px;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .about-us-content {
+    max-width: 1300px;
+    width: 100%;
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .about-us-logo {
+    width: 200px;
+    height: auto;
+    margin-bottom: 0.5px;
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .about-us-content h1 {
+    font-size: 36px;
+    margin-bottom: 5px;
+    color: #000000;
+    animation: slideIn 1s ease-in-out;
+  }
+  
+  .about-us-description {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  .about-us-features {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .feature {
+    flex: 1;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideUp 1s ease-in-out;
+  }
+  
+  .feature:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .feature h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #000000;
+  }
+  
+  .feature p {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .about-us-features {
+      flex-direction: column;
+    }
+  }

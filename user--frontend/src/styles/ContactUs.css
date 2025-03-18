@@ -1,0 +1,156 @@
+/* Contact Us Page */
+.contact-us-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 97vh;
+    background-color: #f0f2f5;
+    padding: 10px 10px;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .contact-us-content {
+    max-width: 1200px;
+    width: 100%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .contact-us-logo {
+    width: 200px;
+    height: auto;
+    margin-bottom: 0.5px;
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .contact-us-content h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #1e90ff;
+    animation: slideIn 1s ease-in-out;
+  }
+  
+  .contact-us-description {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  .contact-us-details {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    animation: slideUp 1s ease-in-out;
+  }
+  
+  .contact-info {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .contact-info h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #1e90ff;
+  }
+  
+  .contact-info p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .contact-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .contact-form input,
+  .contact-form textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    border-color: #1e90ff;
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+  }
+  
+  .contact-form textarea {
+    resize: vertical;
+  }
+  
+  .contact-form button {
+    padding: 10px 20px;
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .contact-form button:hover {
+    background-color: #0077b6;
+    transform: scale(1.05);
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .contact-us-details {
+      flex-direction: column;
+    }
+  }

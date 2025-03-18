@@ -5,7 +5,7 @@ import FlightStatus from "./FlightStatus";
 import Users from "./Users";
 import Airports from "./Airports";
 import BookingStatusMaster from "./BookingStatusMaster";
-import { Layout, Menu, theme } from "antd"; // Removed message from antd
+import { Layout, Menu, theme, Button } from "antd"; // Removed message from ant
 import FlightStatusMaster from "./FlightStatusMaster";
 import PaymentMethodMaster from "./PaymentMethodMaster";
 import "../styles/global.css"; // Import global styles
@@ -37,6 +37,11 @@ function AdminDashboard() {
       navigate("/forbidden", { replace: true }); // Redirect non-admin users to /forbidden
     }
   }, [navigate]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    navigate("/login", { replace: true }); // Redirect to login page after logout
+  };
 
   const {
     token: { colorBgContainer },
@@ -78,7 +83,20 @@ function AdminDashboard() {
 
         {/* Main Content */}
         <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }} />
+          <Header
+            style={{
+              padding: "0 16px",
+              background: colorBgContainer,
+              display: "flex",
+              justifyContent: "flex-end", // Align items to the right
+              alignItems: "center",
+            }}
+          >
+            {/* Logout Button */}
+            <Button type="primary" danger onClick={handleLogout}>
+              Logout
+            </Button>
+          </Header>
           <Content style={{ margin: "24px 16px 0" }}>
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
               {activeTab === "flights" && <Flights />}
