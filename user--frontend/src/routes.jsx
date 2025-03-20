@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import Help from "./pages/Help";
+import SearchResults from "./pages/SearchResults";
 
 // Add routes
 
@@ -19,6 +20,7 @@ const AppRoutes = () => {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/search-results" element={<SearchResults />} />
       </Routes>
     </Router>
   );

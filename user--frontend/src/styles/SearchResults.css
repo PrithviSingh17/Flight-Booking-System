@@ -1,0 +1,123 @@
+/* SearchResults.css */
+
+/* Container for the search results page */
+.search-results {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Search bar section */
+  .search-section {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  /* Search form styling */
+  .search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  /* Form items (inputs, selects, date pickers) */
+  .search-form .ant-form-item {
+    margin-bottom: 0; /* Remove default margin */
+    flex: 1;
+    min-width: 150px; /* Minimum width for each field */
+  }
+  
+  /* Reduce the size of the passengers dropdown */
+  .search-form .ant-form-item[name="passengers"] {
+    flex: 0.5; /* Smaller width for passengers */
+  }
+  
+  /* Style for all inputs, selects, and date pickers */
+  .search-form .ant-select,
+  .search-form .ant-picker,
+  .search-form .ant-input-number {
+    width: 100%;
+    height: 40px; /* Consistent height */
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+  }
+  
+  /* Hover effects for inputs */
+  .search-form .ant-select:hover,
+  .search-form .ant-picker:hover,
+  .search-form .ant-input-number:hover {
+    border-color: #40a9ff;
+    box-shadow: 0 0 8px rgba(24, 144, 255, 0.2);
+  }
+  
+  /* Search button styling */
+  .search-button {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    border-radius: 4px;
+    height: 40px; /* Match height with other inputs */
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .search-button:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+    transform: scale(1.05);
+  }
+  
+  /* Flight results table */
+  .flight-results {
+    margin-top: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .flight-results h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Table styling */
+  .ant-table {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .ant-table-thead > tr > th {
+    background-color: #1890ff;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .ant-table-tbody > tr:hover > td {
+    background-color: #e6f7ff !important;
+  }
+  
+  /* Responsive design for smaller screens */
+  @media (max-width: 768px) {
+    .search-form {
+      flex-direction: column;
+    }
+  
+    .search-form .ant-form-item {
+      width: 100%;
+      min-width: unset;
+    }
+  
+    .search-button {
+      width: 100%;
+    }
+  }
