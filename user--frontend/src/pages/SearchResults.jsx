@@ -3,94 +3,88 @@ import { Table, Button, message } from "antd";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import SearchBar from "../components/SearchBar";
-import moment from "moment"; // Import moment
+import moment from "moment";
 import "../styles/SearchResults.css";
 import logo from "../assets/logo1.png";
 import "../styles/Home.css";
 
 const SearchResults = () => {
-    const [flights, setFlights] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const location = useLocation();
-    const navigate = useNavigate();
-  
-    // Extract search parameters from the URL
-    const searchParams = new URLSearchParams(location.search);
-    const departureCity = searchParams.get("departureCity");
-    const arrivalCity = searchParams.get("arrivalCity");
-    const departureDate = searchParams.get("departureDate");
-    const returnDate = searchParams.get("returnDate");
-    const passengers = searchParams.get("passengers");
-  
-    // Prepare initialValues for the SearchBar
-    const initialValues = {
-      departureCity,
-      arrivalCity,
-      departureDate: departureDate ? moment(departureDate) : null,
-      returnDate: returnDate ? moment(returnDate) : null,
-      passengers: passengers ? parseInt(passengers, 10) : 1,
-    };
-  
-    const formatTime = (dateTimeString) => {
-      const date = new Date(dateTimeString);
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${hours}:${minutes}`;
-    };
-  
-    useEffect(() => {
-      const fetchFlights = async () => {
-        try {
-          setLoading(true);
-          // Fetch flights based on search parameters
-          const outboundResponse = await API.get("/flights/search", {
-            params: {
-              departure_city: departureCity,
-              arrival_city: arrivalCity,
-              departure_date: departureDate,
-              passengers: passengers,
-            },
-          });
-  
-          let returnFlights = [];
-          if (returnDate) {
-            const returnResponse = await API.get("/flights/search", {
-              params: {
-                departure_city: arrivalCity,
-                arrival_city: departureCity,
-                departure_date: returnDate,
-                passengers: passengers,
-              },
-            });
-            returnFlights = returnResponse.data;
-          }
-  
-          // Format and combine flights
-          const formattedOutboundFlights = outboundResponse.data.map((flight) => ({
-            ...flight,
-            type: "Outbound",
-            departure_time: formatTime(flight.departure_time),
-            arrival_time: formatTime(flight.arrival_time),
-          }));
-  
-          const formattedReturnFlights = returnFlights.map((flight) => ({
+  const [flights, setFlights] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Extract search parameters from the URL
+  const searchParams = new URLSearchParams(location.search);
+  const departureCity = searchParams.get("departureCity");
+  const arrivalCity = searchParams.get("arrivalCity");
+  const departureDate = searchParams.get("departureDate");
+  const returnDate = searchParams.get("returnDate");
+  const passengers = searchParams.get("passengers");
+  const tripType = searchParams.get("tripType");
+
+  // Prepare initialValues for the SearchBar
+  const initialValues = {
+    departureCity,
+    arrivalCity,
+    departureDate: departureDate ? moment(departureDate) : null,
+    returnDate: returnDate ? moment(returnDate) : null,
+    passengers: passengers ? parseInt(passengers, 10) : 1,
+    tripType: tripType || "one-way", // Default to "one-way"
+  };
+
+  const formatTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  useEffect(() => {
+    const fetchFlights = async () => {
+      try {
+        setLoading(true);
+        // Fetch flights based on search parameters
+        const response = await API.get("/flights/search", {
+          params: {
+            departure_city: departureCity,
+            arrival_city: arrivalCity,
+            departure_date: departureDate,
+            return_date: returnDate,
+            trip_type: tripType, // Send tripType to the backend
+            passengers: passengers,
+          },
+        });
+
+        // Format and combine flights
+        const formattedOutboundFlights = response.data.outboundFlights.map((flight) => ({
+          ...flight,
+          type: "Outbound",
+          departure_time: formatTime(flight.departure_time),
+          arrival_time: formatTime(flight.arrival_time),
+        }));
+
+        let formattedReturnFlights = [];
+        if (tripType === "return" && response.data.returnFlights) {
+          formattedReturnFlights = response.data.returnFlights.map((flight) => ({
             ...flight,
             type: "Return",
             departure_time: formatTime(flight.departure_time),
             arrival_time: formatTime(flight.arrival_time),
           }));
-  
-          setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
-        } catch (err) {
-          message.error("No flights found for the given criteria.");
-          setFlights([]);
-        } finally {
-          setLoading(false);
         }
-      };
-  
-      fetchFlights();
-    }, [departureCity, arrivalCity, departureDate, returnDate, passengers]);
+
+        setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
+      } catch (err) {
+        message.error("No flights found for the given criteria.");
+        setFlights([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFlights();
+  }, [departureCity, arrivalCity, departureDate, returnDate, passengers, tripType]);
 
   const columns = [
     {
@@ -146,7 +140,7 @@ const SearchResults = () => {
 
   return (
     <div className="search-results">
-      {/* Search Bar Section */}
+      {/* Header and Search Bar Section */}
       <header className="header">
         <div className="logo">
           <img src={logo} alt="Flight Booking Logo" className="logo-img" />
@@ -174,25 +168,22 @@ const SearchResults = () => {
         </div>
       </header>
 
-      
       <div className="search-results">
-      {/* Search Bar Section */}
-      <div className="search-section">
-        <SearchBar initialValues={initialValues} />
-      </div>
+        <div className="search-section">
+          <SearchBar initialValues={initialValues} />
+        </div>
 
-      {/* Flight Results */}
-      <div className="flight-results">
-        <h2>Search Results</h2>
-        <Table
-          columns={columns}
-          dataSource={flights}
-          rowKey="flight_id"
-          loading={loading}
-          pagination={{ pageSize: 5 }}
-        />
+        <div className="flight-results">
+          <h2>Search Results</h2>
+          <Table
+            columns={columns}
+            dataSource={flights}
+            rowKey="flight_id"
+            loading={loading}
+            pagination={{ pageSize: 5 }}
+          />
+        </div>
       </div>
-    </div>
     </div>
   );
 };

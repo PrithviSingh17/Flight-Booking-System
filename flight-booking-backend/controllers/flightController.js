@@ -70,16 +70,16 @@ exports.deleteFlight = async (req, res) => {
 
  // Import Sequelize operators
 
-exports.searchFlights = async (req, res) => {
+ exports.searchFlights = async (req, res) => {
   try {
-    const { departure_city, arrival_city, departure_date } = req.query;
+    const { departure_city, arrival_city, departure_date, return_date, trip_type } = req.query;
 
     // Validate required fields
     if (!departure_city || !arrival_city) {
       return res.status(400).json({ error: "Both departure_city and arrival_city are required" });
     }
 
-    // Build the where clause
+    // Build the where clause for outbound flights
     const whereClause = {
       departure_city,
       arrival_city,
@@ -92,18 +92,42 @@ exports.searchFlights = async (req, res) => {
       };
     }
 
-    // Fetch flights from the database
-    const flights = await Flight.findAll({
+    // Fetch outbound flights from the database
+    const outboundFlights = await Flight.findAll({
       where: whereClause,
     });
 
-    // Handle no flights found
-    if (flights.length === 0) {
-      return res.status(404).json({ error: "No flights found for the given criteria" });
+    // Handle no outbound flights found
+    if (outboundFlights.length === 0) {
+      return res.status(404).json({ error: "No outbound flights found for the given criteria" });
+    }
+
+    let returnFlights = [];
+    // Fetch return flights only if trip_type is "return" and return_date is provided
+    if (trip_type === "return" && return_date) {
+      const returnWhereClause = {
+        departure_city: arrival_city,
+        arrival_city: departure_city,
+        departure_time: {
+          [Op.gte]: new Date(return_date), // Filter flights after the return date
+        },
+      };
+
+      returnFlights = await Flight.findAll({
+        where: returnWhereClause,
+      });
+
+      // Handle no return flights found
+      if (returnFlights.length === 0) {
+        return res.status(404).json({ error: "No return flights found for the given criteria" });
+      }
     }
 
     // Return the flights
-    res.status(200).json(flights);
+    res.status(200).json({
+      outboundFlights,
+      returnFlights,
+    });
   } catch (error) {
     console.error("Error searching flights:", error);
     res.status(500).json({ error: "Internal Server Error" });
