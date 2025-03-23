@@ -2,122 +2,266 @@
 
 /* Container for the search results page */
 .search-results {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  /* Search bar section */
-  .search-section {
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  /* Search form styling */
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Search bar section */
+.search-section {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Results container */
+.results-container {
+  display: flex;
+  gap: 20px;
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Form items (inputs, selects, date pickers) */
+.search-form .ant-form-item {
+  margin-bottom: 0; /* Remove default margin */
+  flex: 1;
+  min-width: 150px; /* Minimum width for each field */
+}
+
+/* Reduce the size of the passengers dropdown */
+.search-form .ant-form-item[name="passengers"] {
+  flex: 0.5; /* Smaller width for passengers */
+}
+
+/* Style for all inputs, selects, and date pickers */
+.search-form .ant-select,
+.search-form .ant-picker,
+.search-form .ant-input-number {
+  width: 100%;
+  height: 40px; /* Consistent height */
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  background-color: white;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* Hover effects for inputs */
+.search-form .ant-select:hover,
+.search-form .ant-picker:hover,
+.search-form .ant-input-number:hover {
+  border-color: #40a9ff;
+  box-shadow: 0 0 8px rgba(24, 144, 255, 0.2);
+}
+
+/* Search button styling */
+.search-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  border-radius: 4px;
+  height: 40px; /* Match height with other inputs */
+  font-weight: bold;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+  transform: scale(1.05);
+}
+
+/* Filters Sidebar */
+.filters-sidebar {
+  width: 250px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filters-sidebar h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.filter-group .ant-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group .ant-input-number {
+  width: 100%;
+}
+
+/* Flight results section */
+.flight-results {
+  flex: 1;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.flight-results h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.sort-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sort-section .ant-select {
+  width: 150px;
+}
+
+/* Flight cards styling */
+.flight-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.flight-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.flight-card .flight-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.flight-card .flight-info .airline {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.flight-card .flight-info .route {
+  font-size: 14px;
+  color: #666;
+}
+
+.flight-card .flight-info .route::before {
+  content: "✈️"; /* Airplane emoji */
+  margin-right: 8px;
+}
+
+.flight-card .flight-info .timings {
+  font-size: 14px;
+  color: #666;
+  font-family: 'Poppins', sans-serif;
+}
+
+.flight-card .flight-info .timings::before {
+  content: "🕒"; /* Clock emoji */
+  margin-right: 8px;
+}
+
+.flight-card .price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1890ff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.flight-card .price::before {
+  content: "💰"; /* Money emoji */
+  margin-right: 8px;
+}
+
+.flight-card .book-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  border-radius: 4px;
+  height: 40px;
+  font-weight: bold;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.flight-card .book-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+  transform: scale(1.05);
+}
+
+/* No results message */
+.no-results {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  padding: 20px;
+}
+.no-results::before {
+  content: "😢"; /* Sad emoji */
+  margin-right: 8px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+
   .search-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
-  
-  /* Form items (inputs, selects, date pickers) */
+
   .search-form .ant-form-item {
-    margin-bottom: 0; /* Remove default margin */
-    flex: 1;
-    min-width: 150px; /* Minimum width for each field */
-  }
-  
-  /* Reduce the size of the passengers dropdown */
-  .search-form .ant-form-item[name="passengers"] {
-    flex: 0.5; /* Smaller width for passengers */
-  }
-  
-  /* Style for all inputs, selects, and date pickers */
-  .search-form .ant-select,
-  .search-form .ant-picker,
-  .search-form .ant-input-number {
     width: 100%;
-    height: 40px; /* Consistent height */
-    border-radius: 4px;
-    border: 1px solid #d9d9d9;
-    background-color: white;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
+    min-width: unset;
   }
-  
-  /* Hover effects for inputs */
-  .search-form .ant-select:hover,
-  .search-form .ant-picker:hover,
-  .search-form .ant-input-number:hover {
-    border-color: #40a9ff;
-    box-shadow: 0 0 8px rgba(24, 144, 255, 0.2);
-  }
-  
-  /* Search button styling */
+
   .search-button {
-    background-color: #1890ff;
-    border-color: #1890ff;
-    border-radius: 4px;
-    height: 40px; /* Match height with other inputs */
-    font-weight: bold;
-    color: white;
-    transition: all 0.3s ease;
+    width: 100%;
   }
-  
-  .search-button:hover {
-    background-color: #40a9ff;
-    border-color: #40a9ff;
-    transform: scale(1.05);
+
+  .results-container {
+    flex-direction: column;
   }
-  
-  /* Flight results table */
-  .flight-results {
-    margin-top: 20px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .filters-sidebar {
+    width: 100%;
   }
-  
-  .flight-results h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
-    font-family: 'Poppins', sans-serif;
+
+  .flight-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  /* Table styling */
-  .ant-table {
-    border-radius: 8px;
-    overflow: hidden;
+
+  .flight-card .book-button {
+    width: 100%;
   }
-  
-  .ant-table-thead > tr > th {
-    background-color: #1890ff;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .ant-table-tbody > tr:hover > td {
-    background-color: #e6f7ff !important;
-  }
-  
-  /* Responsive design for smaller screens */
-  @media (max-width: 768px) {
-    .search-form {
-      flex-direction: column;
-    }
-  
-    .search-form .ant-form-item {
-      width: 100%;
-      min-width: unset;
-    }
-  
-    .search-button {
-      width: 100%;
-    }
-  }
+
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, message } from "antd";
+import { Checkbox, InputNumber, Button, message, Select } from "antd";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import SearchBar from "../components/SearchBar";
@@ -8,9 +8,15 @@ import "../styles/SearchResults.css";
 import logo from "../assets/logo1.png";
 import "../styles/Home.css";
 
+const { Option } = Select;
+
 const SearchResults = () => {
   const [flights, setFlights] = useState([]);
+  const [filteredFlights, setFilteredFlights] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedAirlines, setSelectedAirlines] = useState([]);
+  const [maxPrice, setMaxPrice] = useState(null);
+  const [sortBy, setSortBy] = useState("price");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -51,7 +57,7 @@ const SearchResults = () => {
             arrival_city: arrivalCity,
             departure_date: departureDate,
             return_date: returnDate,
-            trip_type: tripType, // Send tripType to the backend
+            trip_type: tripType,
             passengers: passengers,
           },
         });
@@ -62,6 +68,7 @@ const SearchResults = () => {
           type: "Outbound",
           departure_time: formatTime(flight.departure_time),
           arrival_time: formatTime(flight.arrival_time),
+          departure_timestamp: new Date(flight.departure_time).getTime(), // Add timestamp for sorting
         }));
 
         let formattedReturnFlights = [];
@@ -71,13 +78,17 @@ const SearchResults = () => {
             type: "Return",
             departure_time: formatTime(flight.departure_time),
             arrival_time: formatTime(flight.arrival_time),
+            departure_timestamp: new Date(flight.departure_time).getTime(), // Add timestamp for sorting
           }));
         }
 
-        setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
+        const allFlights = [...formattedOutboundFlights, ...formattedReturnFlights];
+        setFlights(allFlights);
+        setFilteredFlights(allFlights);
       } catch (err) {
         message.error("No flights found for the given criteria.");
         setFlights([]);
+        setFilteredFlights([]);
       } finally {
         setLoading(false);
       }
@@ -86,57 +97,51 @@ const SearchResults = () => {
     fetchFlights();
   }, [departureCity, arrivalCity, departureDate, returnDate, passengers, tripType]);
 
-  const columns = [
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Flight Number",
-      dataIndex: "flight_number",
-      key: "flight_number",
-    },
-    {
-      title: "Airline",
-      dataIndex: "airline_name",
-      key: "airline_name",
-    },
-    {
-      title: "Departure",
-      dataIndex: "departure_city",
-      key: "departure_city",
-    },
-    {
-      title: "Arrival",
-      dataIndex: "arrival_city",
-      key: "arrival_city",
-    },
-    {
-      title: "Departure Time",
-      dataIndex: "departure_time",
-      key: "departure_time",
-    },
-    {
-      title: "Arrival Time",
-      dataIndex: "arrival_time",
-      key: "arrival_time",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Button type="primary" onClick={() => navigate(`/book-flight/${record.flight_id}`)}>
-          Book Now
-        </Button>
-      ),
-    },
-  ];
+  // Handle airline selection
+  const handleAirlineSelection = (checkedValues) => {
+    setSelectedAirlines(checkedValues);
+    applyFilters(checkedValues, maxPrice);
+  };
+
+  // Handle max price change
+  const handleMaxPriceChange = (value) => {
+    setMaxPrice(value);
+    applyFilters(selectedAirlines, value);
+  };
+
+  // Apply filters
+  const applyFilters = (airlines, price) => {
+    let filtered = flights;
+    if (airlines.length > 0 && !airlines.includes("All")) {
+      filtered = filtered.filter((flight) => airlines.includes(flight.airline_name));
+    }
+    if (price) {
+      filtered = filtered.filter((flight) => flight.price <= price);
+    }
+    setFilteredFlights(filtered);
+  };
+
+  // Handle sorting
+  const handleSort = (value) => {
+    setSortBy(value);
+    let sorted = [...filteredFlights];
+    if (value === "price") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (value === "departure_time") {
+      sorted.sort((a, b) => a.departure_timestamp - b.departure_timestamp); // Sort by timestamp
+    }
+    setFilteredFlights(sorted);
+  };
+
+  // Get unique airline names
+  const airlineOptions = [...new Set(flights.map((flight) => flight.airline_name))];
+
+  // Logout function
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    message.success("Logged out successfully!");
+    window.location.reload();
+  };
 
   return (
     <div className="search-results">
@@ -173,15 +178,64 @@ const SearchResults = () => {
           <SearchBar initialValues={initialValues} />
         </div>
 
-        <div className="flight-results">
-          <h2>Search Results</h2>
-          <Table
-            columns={columns}
-            dataSource={flights}
-            rowKey="flight_id"
-            loading={loading}
-            pagination={{ pageSize: 5 }}
-          />
+        <div className="results-container">
+          {/* Filters Sidebar */}
+          <div className="filters-sidebar">
+            <h3>Filters</h3>
+            <div className="filter-group">
+              <h4>Airlines</h4>
+              <Checkbox.Group
+                options={["All", ...airlineOptions]}
+                value={selectedAirlines}
+                onChange={handleAirlineSelection}
+              />
+            </div>
+            <div className="filter-group">
+              <h4>Max Price</h4>
+              <InputNumber
+                placeholder="Enter max price"
+                style={{ width: "100%" }}
+                onChange={handleMaxPriceChange}
+              />
+            </div>
+          </div>
+
+          {/* Flight Results */}
+          <div className="flight-results">
+            <h2>Search Results</h2>
+            <div className="sort-section">
+              <span>Sort by:</span>
+              <Select defaultValue="price" style={{ width: 150 }} onChange={handleSort}>
+                <Option value="price">Price</Option>
+                <Option value="departure_time">Departure Time</Option>
+              </Select>
+            </div>
+            {filteredFlights.length > 0 ? (
+              filteredFlights.map((flight) => (
+                <div className="flight-card" key={flight.flight_id}>
+                  <div className="flight-info">
+                    <div className="airline">{flight.airline_name}</div>
+                    <div className="route">
+                      {flight.departure_city} → {flight.arrival_city}
+                    </div>
+                    <div className="timings">
+                      {flight.departure_time} - {flight.arrival_time}
+                    </div>
+                  </div>
+                  <div className="price">₹{flight.price}</div> {/* Updated to ₹ symbol */}
+                  <Button
+                    className="book-button"
+                    type="primary"
+                    onClick={() => navigate(`/book-flight/${flight.flight_id}`)}
+                  >
+                    Book Now
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div className="no-results">No flights found.</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
