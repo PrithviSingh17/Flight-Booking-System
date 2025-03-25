@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Checkbox, InputNumber, Button, message, Select } from "antd";
+import { Checkbox, InputNumber, Button, message, Select, Row, Col } from "antd";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import SearchBar from "../components/SearchBar";
@@ -8,19 +8,36 @@ import "../styles/SearchResults.css";
 import logo from "../assets/logo1.png";
 import "../styles/Home.css";
 
+// Import airline logos
+import indigoLogo from "../assets/indigo.png";
+import airIndiaLogo from "../assets/airindia.jpg";
+import spicejetLogo from "../assets/spicejet.png";
+import vistaratLogo from "../assets/vistara.jpg";
+import goFirstLogo from "../assets/gofirst.jpg";
+
 const { Option } = Select;
+
+const airlineLogoMap = {
+  "IndiGo": indigoLogo,
+  "Air India": airIndiaLogo,
+  "SpiceJet": spicejetLogo,
+  "Vistara": vistaratLogo,
+  "GoAir": goFirstLogo,
+};
 
 const SearchResults = () => {
   const [flights, setFlights] = useState([]);
-  const [filteredFlights, setFilteredFlights] = useState([]);
+  const [outboundFlights, setOutboundFlights] = useState([]);
+  const [returnFlights, setReturnFlights] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedAirlines, setSelectedAirlines] = useState([]);
   const [maxPrice, setMaxPrice] = useState(null);
   const [sortBy, setSortBy] = useState("price");
+  const [selectedOutboundFlight, setSelectedOutboundFlight] = useState(null);
+  const [selectedReturnFlight, setSelectedReturnFlight] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract search parameters from the URL
   const searchParams = new URLSearchParams(location.search);
   const departureCity = searchParams.get("departureCity");
   const arrivalCity = searchParams.get("arrivalCity");
@@ -29,14 +46,13 @@ const SearchResults = () => {
   const passengers = searchParams.get("passengers");
   const tripType = searchParams.get("tripType");
 
-  // Prepare initialValues for the SearchBar
   const initialValues = {
     departureCity,
     arrivalCity,
     departureDate: departureDate ? moment(departureDate) : null,
     returnDate: returnDate ? moment(returnDate) : null,
     passengers: passengers ? parseInt(passengers, 10) : 1,
-    tripType: tripType || "one-way", // Default to "one-way"
+    tripType: tripType || "one-way",
   };
 
   const formatTime = (dateTimeString) => {
@@ -46,11 +62,23 @@ const SearchResults = () => {
     return `${hours}:${minutes}`;
   };
 
+  const calculateDuration = (departureTime, arrivalTime) => {
+    const departure = new Date(departureTime);
+    const arrival = new Date(arrivalTime);
+    const durationInMinutes = Math.floor((arrival - departure) / (1000 * 60));
+    const hours = Math.floor(durationInMinutes / 60);
+    const minutes = durationInMinutes % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
+  const getAirlineLogo = (airlineName) => {
+    return airlineLogoMap[airlineName] || airlineLogoMap["IndiGo"];
+  };
+
   useEffect(() => {
     const fetchFlights = async () => {
       try {
         setLoading(true);
-        // Fetch flights based on search parameters
         const response = await API.get("/flights/search", {
           params: {
             departure_city: departureCity,
@@ -62,13 +90,13 @@ const SearchResults = () => {
           },
         });
 
-        // Format and combine flights
         const formattedOutboundFlights = response.data.outboundFlights.map((flight) => ({
           ...flight,
           type: "Outbound",
           departure_time: formatTime(flight.departure_time),
           arrival_time: formatTime(flight.arrival_time),
-          departure_timestamp: new Date(flight.departure_time).getTime(), // Add timestamp for sorting
+          departure_timestamp: new Date(flight.departure_time).getTime(),
+          duration: calculateDuration(flight.departure_time, flight.arrival_time),
         }));
 
         let formattedReturnFlights = [];
@@ -78,17 +106,27 @@ const SearchResults = () => {
             type: "Return",
             departure_time: formatTime(flight.departure_time),
             arrival_time: formatTime(flight.arrival_time),
-            departure_timestamp: new Date(flight.departure_time).getTime(), // Add timestamp for sorting
+            departure_timestamp: new Date(flight.departure_time).getTime(),
+            duration: calculateDuration(flight.departure_time, flight.arrival_time),
           }));
         }
 
-        const allFlights = [...formattedOutboundFlights, ...formattedReturnFlights];
-        setFlights(allFlights);
-        setFilteredFlights(allFlights);
+        if (formattedOutboundFlights.length > 0) {
+          const lowestOutbound = [...formattedOutboundFlights].sort((a, b) => a.price - b.price)[0];
+          setSelectedOutboundFlight(lowestOutbound);
+        }
+        if (tripType === "return" && formattedReturnFlights.length > 0) {
+          const lowestReturn = [...formattedReturnFlights].sort((a, b) => a.price - b.price)[0];
+          setSelectedReturnFlight(lowestReturn);
+        }
+
+        setOutboundFlights(formattedOutboundFlights);
+        setReturnFlights(formattedReturnFlights);
+        setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
       } catch (err) {
         message.error("No flights found for the given criteria.");
-        setFlights([]);
-        setFilteredFlights([]);
+        setOutboundFlights([]);
+        setReturnFlights([]);
       } finally {
         setLoading(false);
       }
@@ -97,46 +135,73 @@ const SearchResults = () => {
     fetchFlights();
   }, [departureCity, arrivalCity, departureDate, returnDate, passengers, tripType]);
 
-  // Handle airline selection
   const handleAirlineSelection = (checkedValues) => {
     setSelectedAirlines(checkedValues);
     applyFilters(checkedValues, maxPrice);
   };
 
-  // Handle max price change
   const handleMaxPriceChange = (value) => {
     setMaxPrice(value);
     applyFilters(selectedAirlines, value);
   };
 
-  // Apply filters
   const applyFilters = (airlines, price) => {
-    let filtered = flights;
+    let filteredOutbound = flights.filter((flight) => flight.type === "Outbound");
+    let filteredReturn = flights.filter((flight) => flight.type === "Return");
+
     if (airlines.length > 0 && !airlines.includes("All")) {
-      filtered = filtered.filter((flight) => airlines.includes(flight.airline_name));
+      filteredOutbound = filteredOutbound.filter((flight) => airlines.includes(flight.airline_name));
+      filteredReturn = filteredReturn.filter((flight) => airlines.includes(flight.airline_name));
     }
     if (price) {
-      filtered = filtered.filter((flight) => flight.price <= price);
+      filteredOutbound = filteredOutbound.filter((flight) => flight.price <= price);
+      filteredReturn = filteredReturn.filter((flight) => flight.price <= price);
     }
-    setFilteredFlights(filtered);
+
+    setOutboundFlights(filteredOutbound);
+    setReturnFlights(filteredReturn);
+
+    if (selectedOutboundFlight && !filteredOutbound.some(f => f.flight_id === selectedOutboundFlight.flight_id)) {
+      setSelectedOutboundFlight(filteredOutbound.length > 0 ? [...filteredOutbound].sort((a, b) => a.price - b.price)[0] : null);
+    }
+    if (selectedReturnFlight && !filteredReturn.some(f => f.flight_id === selectedReturnFlight.flight_id)) {
+      setSelectedReturnFlight(filteredReturn.length > 0 ? [...filteredReturn].sort((a, b) => a.price - b.price)[0] : null);
+    }
   };
 
-  // Handle sorting
   const handleSort = (value) => {
     setSortBy(value);
-    let sorted = [...filteredFlights];
+    let sortedOutbound = [...outboundFlights];
+    let sortedReturn = [...returnFlights];
+
     if (value === "price") {
-      sorted.sort((a, b) => a.price - b.price);
+      sortedOutbound.sort((a, b) => a.price - b.price);
+      sortedReturn.sort((a, b) => a.price - b.price);
     } else if (value === "departure_time") {
-      sorted.sort((a, b) => a.departure_timestamp - b.departure_timestamp); // Sort by timestamp
+      sortedOutbound.sort((a, b) => a.departure_timestamp - b.departure_timestamp);
+      sortedReturn.sort((a, b) => a.departure_timestamp - b.departure_timestamp);
     }
-    setFilteredFlights(sorted);
+
+    setOutboundFlights(sortedOutbound);
+    setReturnFlights(sortedReturn);
   };
 
-  // Get unique airline names
+  const handleFlightSelection = (flight) => {
+    if (flight.type === "Outbound") {
+      setSelectedOutboundFlight(flight);
+    } else {
+      setSelectedReturnFlight(flight);
+    }
+  };
+
+  const handleBookNow = () => {
+    if (selectedOutboundFlight) {
+      navigate(`/book-flight/${selectedOutboundFlight.flight_id}${tripType === "return" && selectedReturnFlight ? `/${selectedReturnFlight.flight_id}` : ''}`);
+    }
+  };
+
   const airlineOptions = [...new Set(flights.map((flight) => flight.airline_name))];
 
-  // Logout function
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     message.success("Logged out successfully!");
@@ -145,9 +210,8 @@ const SearchResults = () => {
 
   return (
     <div className="search-results">
-      {/* Header and Search Bar Section */}
       <header className="header">
-        <div className="logo">
+        <div className="logo" onClick={() => navigate("/")}>
           <img src={logo} alt="Flight Booking Logo" className="logo-img" />
         </div>
         <nav className="nav-links">
@@ -179,7 +243,6 @@ const SearchResults = () => {
         </div>
 
         <div className="results-container">
-          {/* Filters Sidebar */}
           <div className="filters-sidebar">
             <h3>Filters</h3>
             <div className="filter-group">
@@ -200,7 +263,6 @@ const SearchResults = () => {
             </div>
           </div>
 
-          {/* Flight Results */}
           <div className="flight-results">
             <h2>Search Results</h2>
             <div className="sort-section">
@@ -210,34 +272,179 @@ const SearchResults = () => {
                 <Option value="departure_time">Departure Time</Option>
               </Select>
             </div>
-            {filteredFlights.length > 0 ? (
-              filteredFlights.map((flight) => (
-                <div className="flight-card" key={flight.flight_id}>
-                  <div className="flight-info">
-                    <div className="airline">{flight.airline_name}</div>
-                    <div className="route">
-                      {flight.departure_city} → {flight.arrival_city}
+
+            <Row gutter={16}>
+              <Col span={tripType === "return" ? 12 : 24}>
+                <h3>Outbound Flights</h3>
+                {outboundFlights.length > 0 ? (
+                  outboundFlights.map((flight) => (
+                    <div 
+                      className={`flight-card ${tripType === "one-way" ? "one-way" : ""} ${selectedOutboundFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
+                      key={flight.flight_id}
+                      onClick={() => handleFlightSelection(flight)}
+                    >
+                      <div className="flight-info">
+                        <div className="airline-header">
+                          <div className="airline-logo">
+                            <img
+                              src={getAirlineLogo(flight.airline_name)}
+                              alt={flight.airline_name}
+                            />
+                          </div>
+                          <div className="airline">{flight.airline_name}</div>
+                        </div>
+                        
+                        <div className="route-container">
+                          <div className="timings-container">
+                            <div className="timings">
+                              <span className="icon">🛫</span>
+                              <span>{flight.departure_time}</span>
+                            </div>
+                            <div className="city-name">{flight.departure_city}</div>
+                          </div>
+                          
+                          <div className="arrow-container">
+                            <div className="route-arrow">→</div>
+                            <div className="route-duration">{flight.duration}</div>
+                          </div>
+                          
+                          <div className="timings-container">
+                            <div className="timings">
+                              <span>{flight.arrival_time}</span>
+                              <span className="icon">🛬</span>
+                            </div>
+                            <div className="city-name">{flight.arrival_city}</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="price-section">
+                        <div className="price">₹{flight.price}</div>
+                        <div className="per-adult">per adult</div>
+                      </div>
                     </div>
-                    <div className="timings">
-                      {flight.departure_time} - {flight.arrival_time}
-                    </div>
-                  </div>
-                  <div className="price">₹{flight.price}</div> {/* Updated to ₹ symbol */}
-                  <Button
-                    className="book-button"
-                    type="primary"
-                    onClick={() => navigate(`/book-flight/${flight.flight_id}`)}
-                  >
-                    Book Now
-                  </Button>
-                </div>
-              ))
-            ) : (
-              <div className="no-results">No flights found.</div>
-            )}
+                  ))
+                ) : (
+                  <div className="no-results">No outbound flights found.</div>
+                )}
+              </Col>
+
+              {tripType === "return" && (
+                <Col span={12}>
+                  <h3>Return Flights</h3>
+                  {returnFlights.length > 0 ? (
+                    returnFlights.map((flight) => (
+                      <div 
+                        className={`flight-card ${selectedReturnFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
+                        key={flight.flight_id}
+                        onClick={() => handleFlightSelection(flight)}
+                      >
+                        <div className="flight-info">
+                          <div className="airline-header">
+                            <div className="airline-logo">
+                              <img
+                                src={getAirlineLogo(flight.airline_name)}
+                                alt={flight.airline_name}
+                              />
+                            </div>
+                            <div className="airline">{flight.airline_name}</div>
+                          </div>
+                          
+                          <div className="route-container">
+                            <div className="timings-container">
+                              <div className="timings">
+                                <span className="icon">🛫</span>
+                                <span>{flight.departure_time}</span>
+                              </div>
+                              <div className="city-name">{flight.departure_city}</div>
+                            </div>
+                            
+                            <div className="arrow-container">
+                              <div className="route-arrow">→</div>
+                              <div className="route-duration">{flight.duration}</div>
+                            </div>
+                            
+                            <div className="timings-container">
+                              <div className="timings">
+                                <span>{flight.arrival_time}</span>
+                                <span className="icon">🛬</span>
+                              </div>
+                              <div className="city-name">{flight.arrival_city}</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="price-section">
+                          <div className="price">₹{flight.price}</div>
+                          <div className="per-adult">per adult</div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-results">No return flights found.</div>
+                  )}
+                </Col>
+              )}
+            </Row>
           </div>
         </div>
       </div>
+
+      {selectedOutboundFlight && (
+  <div className="bottom-flight-details">
+    <div 
+      className="flight-detail-card"
+      data-airline={selectedOutboundFlight.airline_name}
+    >
+      <div className="airline-logo">
+        <img
+          src={getAirlineLogo(selectedOutboundFlight.airline_name)}
+          alt={selectedOutboundFlight.airline_name}
+        />
+      </div>
+      <div className="flight-info">
+        <div className="flight-time">
+          <span>{selectedOutboundFlight.departure_time}</span>
+          <span className="duration">{selectedOutboundFlight.duration}</span>
+          <span>{selectedOutboundFlight.arrival_time}</span>
+        </div>
+        <div className="flight-route">
+          {selectedOutboundFlight.departure_city} → {selectedOutboundFlight.arrival_city}
+        </div>
+        <div className="flight-price">₹{selectedOutboundFlight.price}</div>
+      </div>
+    </div>
+
+    {tripType === "return" && selectedReturnFlight && (
+      <div 
+        className="flight-detail-card"
+        data-airline={selectedReturnFlight.airline_name}
+      >
+        <div className="airline-logo">
+          <img
+            src={getAirlineLogo(selectedReturnFlight.airline_name)}
+            alt={selectedReturnFlight.airline_name}
+          />
+        </div>
+        <div className="flight-info">
+          <div className="flight-time">
+            <span>{selectedReturnFlight.departure_time}</span>
+            <span className="duration">{selectedReturnFlight.duration}</span>
+            <span>{selectedReturnFlight.arrival_time}</span>
+          </div>
+          <div className="flight-route">
+            {selectedReturnFlight.departure_city} → {selectedReturnFlight.arrival_city}
+          </div>
+          <div className="flight-price">₹{selectedReturnFlight.price}</div>
+        </div>
+      </div>
+    )}
+
+    <Button type="primary" onClick={handleBookNow} className="book-button">
+      Book Now
+    </Button>
+  </div>
+)}
     </div>
   );
 };
