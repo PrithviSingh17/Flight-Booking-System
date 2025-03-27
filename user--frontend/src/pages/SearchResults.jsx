@@ -90,43 +90,62 @@ const SearchResults = () => {
           },
         });
 
-        const formattedOutboundFlights = response.data.outboundFlights.map((flight) => ({
+        const formattedOutboundFlights = response.data.outboundFlights?.map((flight) => ({
           ...flight,
           type: "Outbound",
           departure_time: formatTime(flight.departure_time),
           arrival_time: formatTime(flight.arrival_time),
           departure_timestamp: new Date(flight.departure_time).getTime(),
           duration: calculateDuration(flight.departure_time, flight.arrival_time),
-        }));
+        })) || [];
 
         let formattedReturnFlights = [];
-        if (tripType === "return" && response.data.returnFlights) {
-          formattedReturnFlights = response.data.returnFlights.map((flight) => ({
+        if (tripType === "return") {
+          formattedReturnFlights = response.data.returnFlights?.map((flight) => ({
             ...flight,
             type: "Return",
             departure_time: formatTime(flight.departure_time),
             arrival_time: formatTime(flight.arrival_time),
             departure_timestamp: new Date(flight.departure_time).getTime(),
             duration: calculateDuration(flight.departure_time, flight.arrival_time),
-          }));
+          })) || [];
         }
 
+        // Set selected flights only if they exist
         if (formattedOutboundFlights.length > 0) {
           const lowestOutbound = [...formattedOutboundFlights].sort((a, b) => a.price - b.price)[0];
           setSelectedOutboundFlight(lowestOutbound);
+        } else {
+          setSelectedOutboundFlight(null);
         }
-        if (tripType === "return" && formattedReturnFlights.length > 0) {
-          const lowestReturn = [...formattedReturnFlights].sort((a, b) => a.price - b.price)[0];
-          setSelectedReturnFlight(lowestReturn);
+
+        if (tripType === "return") {
+          if (formattedReturnFlights.length > 0) {
+            const lowestReturn = [...formattedReturnFlights].sort((a, b) => a.price - b.price)[0];
+            setSelectedReturnFlight(lowestReturn);
+          } else {
+            setSelectedReturnFlight(null);
+          }
         }
 
         setOutboundFlights(formattedOutboundFlights);
         setReturnFlights(formattedReturnFlights);
         setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
+
+        // Show appropriate messages
+        if (formattedOutboundFlights.length === 0 && formattedReturnFlights.length === 0) {
+          message.error("No flights found for the given criteria.");
+        } else if (tripType === "return" && formattedOutboundFlights.length === 0) {
+          message.warning("No outbound flights found, but return flights are available.");
+        } else if (tripType === "return" && formattedReturnFlights.length === 0) {
+          message.warning("No return flights found, but outbound flights are available.");
+        }
       } catch (err) {
-        message.error("No flights found for the given criteria.");
+        message.error("Error searching for flights. Please try again.");
         setOutboundFlights([]);
         setReturnFlights([]);
+        setSelectedOutboundFlight(null);
+        setSelectedReturnFlight(null);
       } finally {
         setLoading(false);
       }
@@ -195,8 +214,27 @@ const SearchResults = () => {
   };
 
   const handleBookNow = () => {
-    if (selectedOutboundFlight) {
-      navigate(`/book-flight/${selectedOutboundFlight.flight_id}${tripType === "return" && selectedReturnFlight ? `/${selectedReturnFlight.flight_id}` : ''}`);
+    if (!selectedOutboundFlight && !selectedReturnFlight) {
+      message.error("Please select at least one flight to book");
+      return;
+    }
+
+    if (tripType === "one-way" && selectedOutboundFlight) {
+      navigate(`/book-flight/${selectedOutboundFlight.flight_id}`);
+    } 
+    else if (tripType === "return") {
+      if (selectedOutboundFlight && selectedReturnFlight) {
+        navigate(`/book-flight/${selectedOutboundFlight.flight_id}/${selectedReturnFlight.flight_id}`);
+      }
+      else if (selectedOutboundFlight) {
+        const confirm = window.confirm("Only outbound flight selected. Continue with one-way trip?");
+        if (confirm) {
+          navigate(`/book-flight/${selectedOutboundFlight.flight_id}`);
+        }
+      }
+      else if (selectedReturnFlight) {
+        message.warning("Please select an outbound flight to complete your booking.");
+      }
     }
   };
 
@@ -390,61 +428,63 @@ const SearchResults = () => {
         </div>
       </div>
 
-      {selectedOutboundFlight && (
-  <div className="bottom-flight-details">
-    <div 
-      className="flight-detail-card"
-      data-airline={selectedOutboundFlight.airline_name}
-    >
-      <div className="airline-logo">
-        <img
-          src={getAirlineLogo(selectedOutboundFlight.airline_name)}
-          alt={selectedOutboundFlight.airline_name}
-        />
-      </div>
-      <div className="flight-info">
-        <div className="flight-time">
-          <span>{selectedOutboundFlight.departure_time}</span>
-          <span className="duration">{selectedOutboundFlight.duration}</span>
-          <span>{selectedOutboundFlight.arrival_time}</span>
-        </div>
-        <div className="flight-route">
-          {selectedOutboundFlight.departure_city} → {selectedOutboundFlight.arrival_city}
-        </div>
-        <div className="flight-price">₹{selectedOutboundFlight.price}</div>
-      </div>
-    </div>
+      {(selectedOutboundFlight || selectedReturnFlight) && (
+        <div className="bottom-flight-details">
+          {selectedOutboundFlight && (
+            <div 
+              className="flight-detail-card"
+              data-airline={selectedOutboundFlight.airline_name}
+            >
+              <div className="airline-logo">
+                <img
+                  src={getAirlineLogo(selectedOutboundFlight.airline_name)}
+                  alt={selectedOutboundFlight.airline_name}
+                />
+              </div>
+              <div className="flight-info">
+                <div className="flight-time">
+                  <span>{selectedOutboundFlight.departure_time}</span>
+                  <span className="duration">{selectedOutboundFlight.duration}</span>
+                  <span>{selectedOutboundFlight.arrival_time}</span>
+                </div>
+                <div className="flight-route">
+                  {selectedOutboundFlight.departure_city} → {selectedOutboundFlight.arrival_city}
+                </div>
+                <div className="flight-price">₹{selectedOutboundFlight.price}</div>
+              </div>
+            </div>
+          )}
 
-    {tripType === "return" && selectedReturnFlight && (
-      <div 
-        className="flight-detail-card"
-        data-airline={selectedReturnFlight.airline_name}
-      >
-        <div className="airline-logo">
-          <img
-            src={getAirlineLogo(selectedReturnFlight.airline_name)}
-            alt={selectedReturnFlight.airline_name}
-          />
-        </div>
-        <div className="flight-info">
-          <div className="flight-time">
-            <span>{selectedReturnFlight.departure_time}</span>
-            <span className="duration">{selectedReturnFlight.duration}</span>
-            <span>{selectedReturnFlight.arrival_time}</span>
-          </div>
-          <div className="flight-route">
-            {selectedReturnFlight.departure_city} → {selectedReturnFlight.arrival_city}
-          </div>
-          <div className="flight-price">₹{selectedReturnFlight.price}</div>
-        </div>
-      </div>
-    )}
+          {tripType === "return" && selectedReturnFlight && (
+            <div 
+              className="flight-detail-card"
+              data-airline={selectedReturnFlight.airline_name}
+            >
+              <div className="airline-logo">
+                <img
+                  src={getAirlineLogo(selectedReturnFlight.airline_name)}
+                  alt={selectedReturnFlight.airline_name}
+                />
+              </div>
+              <div className="flight-info">
+                <div className="flight-time">
+                  <span>{selectedReturnFlight.departure_time}</span>
+                  <span className="duration">{selectedReturnFlight.duration}</span>
+                  <span>{selectedReturnFlight.arrival_time}</span>
+                </div>
+                <div className="flight-route">
+                  {selectedReturnFlight.departure_city} → {selectedReturnFlight.arrival_city}
+                </div>
+                <div className="flight-price">₹{selectedReturnFlight.price}</div>
+              </div>
+            </div>
+          )}
 
-    <Button type="primary" onClick={handleBookNow} className="book-button">
-      Book Now
-    </Button>
-  </div>
-)}
+          <Button type="primary" onClick={handleBookNow} className="book-button">
+            Book Now
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

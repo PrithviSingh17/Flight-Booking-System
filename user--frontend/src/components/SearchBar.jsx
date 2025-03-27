@@ -1,68 +1,89 @@
 import React from "react";
 import { Form, DatePicker, Select, Button, Radio } from "antd";
 import { useNavigate } from "react-router-dom";
-import "../styles/SearchBar.css"; // Import the CSS file
+import moment from "moment";
+import "../styles/SearchBar.css";
 
 const { Option } = Select;
 
 const SearchBar = ({ initialValues }) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [tripType, setTripType] = React.useState(initialValues?.tripType || "one-way"); // Default to "one-way"
+  const [tripType, setTripType] = React.useState("one-way");
 
-  // Set initial values when the component mounts or initialValues prop changes
+  // Store dates as moment objects in state
+  const [dates, setDates] = React.useState({
+    departureDate: null,
+    returnDate: null
+  });
+
   React.useEffect(() => {
     if (initialValues) {
-      form.setFieldsValue(initialValues);
-      setTripType(initialValues.tripType || "one-way");
+      const departureMoment = initialValues.departureDate ? moment(initialValues.departureDate) : null;
+      const returnMoment = initialValues.returnDate ? moment(initialValues.returnDate) : null;
+      
+      setDates({
+        departureDate: departureMoment,
+        returnDate: returnMoment
+      });
+
+      const initialTripType = returnMoment ? "return" : "one-way";
+      setTripType(initialTripType);
+
+      form.setFieldsValue({
+        ...initialValues,
+        departureDate: departureMoment,
+        returnDate: returnMoment,
+        tripType: initialTripType
+      });
     }
   }, [initialValues, form]);
 
-  // Handle trip type change
   const handleTripTypeChange = (e) => {
     const newTripType = e.target.value;
     setTripType(newTripType);
-
-    // Clear return date if switching to "one-way"
+    
     if (newTripType === "one-way") {
       form.setFieldsValue({ returnDate: null });
+      setDates(prev => ({ ...prev, returnDate: null }));
+    }
+  };
+
+  const handleReturnDateChange = (date) => {
+    setDates(prev => ({ ...prev, returnDate: date }));
+    if (date) {
+      setTripType("return");
+      form.setFieldsValue({ tripType: "return" });
+    }
+  };
+
+  const handleDepartureDateChange = (date) => {
+    setDates(prev => ({ ...prev, departureDate: date }));
+    const returnDate = form.getFieldValue('returnDate');
+    if (returnDate && returnDate.isBefore(date, 'day')) {
+      form.setFieldsValue({ returnDate: null });
+      setDates(prev => ({ ...prev, returnDate: null }));
     }
   };
 
   const onFinish = (values) => {
-    const { departureCity, arrivalCity, departureDate, returnDate, passengers } = values;
+    const { departureCity, arrivalCity, passengers } = values;
+    const finalTripType = dates.returnDate ? "return" : "one-way";
 
-    // Navigate to the SearchResults page with search parameters
     navigate(
-      `/search-results?departureCity=${departureCity}&arrivalCity=${arrivalCity}&departureDate=${departureDate?.format(
-        "YYYY-MM-DD"
-      )}&returnDate=${returnDate?.format("YYYY-MM-DD")}&passengers=${passengers}&tripType=${tripType}`
+      `/search-results?departureCity=${departureCity}&arrivalCity=${arrivalCity}&departureDate=${
+        dates.departureDate?.format("YYYY-MM-DD") || ""
+      }&returnDate=${dates.returnDate?.format("YYYY-MM-DD") || ""}&passengers=${passengers}&tripType=${finalTripType}`
     );
   };
 
-  // List of cities for dropdown
   const cities = [
-    "New Delhi",
-    "Bengaluru",
-    "Chennai",
-    "Hyderabad",
-    "Kolkata",
-    "Pune",
-    "Ahmedabad",
-    "Goa",
-    "Kochi",
-    "Jaipur",
-    "Lucknow",
-    "Bhubaneswar",
-    "Srinagar",
-    "Vijayawada",
-    "Thiruvananthapuram",
-    "Chandigarh",
-    "Mumbai",
-    "Siliguri",
+    "New Delhi", "Bengaluru", "Chennai", "Hyderabad", "Kolkata",
+    "Pune", "Ahmedabad", "Goa", "Kochi", "Jaipur",
+    "Lucknow", "Bhubaneswar", "Srinagar", "Vijayawada",
+    "Thiruvananthapuram", "Chandigarh", "Mumbai", "Siliguri",
   ];
 
-  // Passengers options (1 to 10)
   const passengersOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 
   return (
@@ -71,67 +92,72 @@ const SearchBar = ({ initialValues }) => {
       layout="inline"
       onFinish={onFinish}
       className="search-form"
-      initialValues={initialValues}
+      initialValues={{
+        tripType: "one-way",
+        passengers: 1
+      }}
     >
-      {/* Trip Type Radio Group */}
-      <Form.Item name="tripType" initialValue={tripType}>
+      <Form.Item name="tripType">
         <Radio.Group onChange={handleTripTypeChange} className="trip-type-radio-group">
-          <Radio value="one-way" className="trip-radio">
-            One Way
-          </Radio>
-          <Radio value="return" className="trip-radio">
-            Return Trip
-          </Radio>
+          <Radio.Button value="one-way" className="trip-radio-button">One Way</Radio.Button>
+          <Radio.Button value="return" className="trip-radio-button">Return Trip</Radio.Button>
         </Radio.Group>
       </Form.Item>
 
       <Form.Item name="departureCity" rules={[{ required: true, message: "Please select departure city!" }]}>
-        <Select showSearch placeholder="Departure City" className="search-input" optionFilterProp="children">
-          {cities.map((city) => (
-            <Option key={city} value={city}>
-              {city}
-            </Option>
+        <Select showSearch placeholder="Departure City" className="search-input">
+          {cities.map(city => (
+            <Option key={city} value={city}>{city}</Option>
           ))}
         </Select>
       </Form.Item>
+
       <Form.Item name="arrivalCity" rules={[{ required: true, message: "Please select arrival city!" }]}>
-        <Select showSearch placeholder="Arrival City" className="search-input" optionFilterProp="children">
-          {cities.map((city) => (
-            <Option key={city} value={city}>
-              {city}
-            </Option>
+        <Select showSearch placeholder="Arrival City" className="search-input">
+          {cities.map(city => (
+            <Option key={city} value={city}>{city}</Option>
           ))}
         </Select>
       </Form.Item>
+
       <Form.Item name="departureDate" rules={[{ required: true, message: "Please select departure date!" }]}>
-        <DatePicker style={{ width: "100%" }} className="search-input" placeholder="Departure Date" />
-      </Form.Item>
-      {/* Conditionally render Return Date based on tripType */}
-      <Form.Item
-        name="returnDate"
-        rules={[
-          {
-            required: tripType === "return",
-            message: "Please select return date!",
-          },
-        ]}
-      >
-        <DatePicker
-          style={{ width: "100%" }}
-          className="search-input"
-          placeholder="Return Date"
-          disabled={tripType === "one-way"} // Disable if tripType is "one-way"
+        <DatePicker 
+          className="search-input date-picker"
+          placeholder="Departure Date"
+          format="YYYY-MM-DD"
+          value={dates.departureDate}
+          onChange={handleDepartureDateChange}
+          disabledDate={current => current && current < moment().startOf('day')}
+          getPopupContainer={trigger => trigger.parentNode}
         />
       </Form.Item>
+
+      <Form.Item name="returnDate">
+        <DatePicker
+          className={`search-input date-picker ${tripType === "one-way" ? "hidden-return" : ""}`}
+          placeholder="Return Date"
+          format="YYYY-MM-DD"
+          value={dates.returnDate}
+          onChange={handleReturnDateChange}
+          disabledDate={current => {
+            if (!dates.departureDate) return current && current < moment().startOf('day');
+            return current && (
+              current < moment().startOf('day') ||
+              current < dates.departureDate.clone().startOf('day')
+            );
+          }}
+          getPopupContainer={trigger => trigger.parentNode}
+        />
+      </Form.Item>
+
       <Form.Item name="passengers" rules={[{ required: true, message: "Please select number of passengers!" }]}>
         <Select placeholder="Passengers" className="search-input">
-          {passengersOptions.map((num) => (
-            <Option key={num} value={num}>
-              {num}
-            </Option>
+          {passengersOptions.map(num => (
+            <Option key={num} value={num}>{num}</Option>
           ))}
         </Select>
       </Form.Item>
+
       <Form.Item>
         <Button type="primary" htmlType="submit" className="search-button">
           Search Flights
