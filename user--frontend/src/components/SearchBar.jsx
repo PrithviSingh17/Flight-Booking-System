@@ -50,19 +50,25 @@ const SearchBar = ({ initialValues }) => {
   };
 
   const handleReturnDateChange = (date) => {
-    setDates(prev => ({ ...prev, returnDate: date }));
     if (date) {
-      setTripType("return");
+      setDates(prev => ({ ...prev, returnDate: date }));
       form.setFieldsValue({ tripType: "return" });
+      setTripType("return");
+    } else {
+      setDates(prev => ({ ...prev, returnDate: null }));
+      form.setFieldsValue({ tripType: "one-way" });
+      setTripType("one-way");
     }
   };
 
   const handleDepartureDateChange = (date) => {
     setDates(prev => ({ ...prev, departureDate: date }));
-    const returnDate = form.getFieldValue('returnDate');
-    if (returnDate && returnDate.isBefore(date, 'day')) {
+    const returnDate = dates.returnDate;
+    
+    if (returnDate && date && returnDate.isBefore(date, 'day')) {
       form.setFieldsValue({ returnDate: null });
       setDates(prev => ({ ...prev, returnDate: null }));
+      setTripType("one-way");
     }
   };
 

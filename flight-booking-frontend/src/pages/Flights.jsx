@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message, Popconfirm, Modal, Input, Pagination } from "antd";
+import { Table, Button, message, Popconfirm, Modal, Input, Pagination, Select } from "antd";
 import API from "../services/api";
 import FlightForm from "../components/FlightForm";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -12,6 +12,10 @@ function Flights() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFlight, setEditingFlight] = useState(null);
   const [airlineFilter, setAirlineFilter] = useState("");
+  const [departureCityFilter, setDepartureCityFilter] = useState("");
+  const [arrivalCityFilter, setArrivalCityFilter] = useState("");
+  const [minPriceFilter, setMinPriceFilter] = useState("");
+  const [maxPriceFilter, setMaxPriceFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -72,14 +76,24 @@ function Flights() {
     }
   };
 
-  const filteredFlights = flights.filter((flight) =>
-    flight.airline_name.toLowerCase().includes(airlineFilter.toLowerCase())
-  );
+  const filteredFlights = flights.filter((flight) => {
+    const matchesAirline = flight.airline_name.toLowerCase().includes(airlineFilter.toLowerCase());
+    const matchesDepartureCity = flight.departure_city.toLowerCase().includes(departureCityFilter.toLowerCase());
+    const matchesArrivalCity = flight.arrival_city.toLowerCase().includes(arrivalCityFilter.toLowerCase());
+    const matchesMinPrice = minPriceFilter === "" || flight.price >= Number(minPriceFilter);
+    const matchesMaxPrice = maxPriceFilter === "" || flight.price <= Number(maxPriceFilter);
+    
+    return matchesAirline && matchesDepartureCity && matchesArrivalCity && matchesMinPrice && matchesMaxPrice;
+  });
 
   // Calculate the flights to display on the current page
   const indexOfLastFlight = currentPage * pageSize;
   const indexOfFirstFlight = indexOfLastFlight - pageSize;
   const currentFlights = filteredFlights.slice(indexOfFirstFlight, indexOfLastFlight);
+
+  // Get unique cities for filter dropdowns
+  const uniqueDepartureCities = [...new Set(flights.map(flight => flight.departure_city))];
+  const uniqueArrivalCities = [...new Set(flights.map(flight => flight.arrival_city))];
 
   return (
     <CSSTransition
@@ -91,24 +105,55 @@ function Flights() {
       <div>
         <h2 className="text-xl font-bold mb-4">Flights Management</h2>
 
-        <Input
-          placeholder="Search by airline"
-          value={airlineFilter}
-          onChange={(e) => setAirlineFilter(e.target.value)}
-          style={{ marginBottom: "20px", width: "200px" }}
-        />
+        <div className="flex flex-wrap gap-4 mb-4">
+          <Input
+            placeholder="Search by airline"
+            value={airlineFilter}
+            onChange={(e) => setAirlineFilter(e.target.value)}
+            style={{ width: "200px" }}
+          />
 
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingFlight(null);
-            setIsModalOpen(true);
-          }}
-          style={{ marginBottom: "20px", marginLeft: "10px" }}
-          icon={<PlusOutlined />}
-        >
-          Create Flight
-        </Button>
+          <Select
+            placeholder="Departure City"
+            value={departureCityFilter || undefined}
+            onChange={(value) => setDepartureCityFilter(value)}
+            style={{ width: "200px" }}
+            allowClear
+          >
+            {uniqueDepartureCities.map(city => (
+              <Select.Option key={city} value={city}>
+                {city}
+              </Select.Option>
+            ))}
+          </Select>
+
+          <Select
+            placeholder="Arrival City"
+            value={arrivalCityFilter || undefined}
+            onChange={(value) => setArrivalCityFilter(value)}
+            style={{ width: "200px" }}
+            allowClear
+          >
+            {uniqueArrivalCities.map(city => (
+              <Select.Option key={city} value={city}>
+                {city}
+              </Select.Option>
+            ))}
+          </Select>
+
+          
+
+          <Button
+            type="primary"
+            onClick={() => {
+              setEditingFlight(null);
+              setIsModalOpen(true);
+            }}
+            icon={<PlusOutlined />}
+          >
+            Create Flight
+          </Button>
+        </div>
 
         <table className="w-full border-collapse border border-gray-400">
           <thead>

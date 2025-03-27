@@ -70,7 +70,16 @@ exports.deleteFlight = async (req, res) => {
 
  // Import Sequelize operators
 
- exports.searchFlights = async (req, res) => {
+ const getDateRange = (dateString) => {
+  const date = new Date(dateString);
+  const startDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(date);
+  endDate.setHours(23, 59, 59, 999);
+  return { startDate, endDate };
+};
+
+exports.searchFlights = async (req, res) => {
   try {
     const { departure_city, arrival_city, departure_date, return_date, trip_type } = req.query;
 
@@ -87,8 +96,9 @@ exports.deleteFlight = async (req, res) => {
 
     // Add departure date filter if provided
     if (departure_date) {
+      const { startDate, endDate } = getDateRange(departure_date);
       whereClause.departure_time = {
-        [Op.gte]: new Date(departure_date), // Filter flights after the departure date
+        [Op.between]: [startDate, endDate] // Filter flights on the exact departure date
       };
     }
 
@@ -105,11 +115,12 @@ exports.deleteFlight = async (req, res) => {
     let returnFlights = [];
     // Fetch return flights only if trip_type is "return" and return_date is provided
     if (trip_type === "return" && return_date) {
+      const { startDate, endDate } = getDateRange(return_date);
       const returnWhereClause = {
         departure_city: arrival_city,
         arrival_city: departure_city,
         departure_time: {
-          [Op.gte]: new Date(return_date), // Filter flights after the return date
+          [Op.between]: [startDate, endDate] // Filter flights on the exact return date
         },
       };
 
@@ -119,7 +130,10 @@ exports.deleteFlight = async (req, res) => {
 
       // Handle no return flights found
       if (returnFlights.length === 0) {
-        return res.status(404).json({ error: "No return flights found for the given criteria" });
+        return res.status(404).json({ 
+          outboundFlights,
+          error: "No return flights found for the given criteria" 
+        });
       }
     }
 
