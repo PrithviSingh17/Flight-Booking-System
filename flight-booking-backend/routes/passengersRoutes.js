@@ -4,7 +4,7 @@ const passengerController = require("../controllers/passengerController");
 const { authenticateUser, authorizeRole } = require("../middleware/authMiddleware");
 
 
-router.post("/", authenticateUser, passengerController.createPassenger);
+router.post("/", authenticateUser, passengerController.createPassengersForBooking);
 
 
 router.get("/", authenticateUser, authorizeRole(["admin"]), passengerController.getAllPassengers);

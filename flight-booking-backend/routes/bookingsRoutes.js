@@ -6,14 +6,22 @@ const { authenticateUser, authorizeRole } = require("../middleware/authMiddlewar
 
 router.post("/", authenticateUser, bookingController.createBookingWithPassengers);
 
+// New complete booking endpoint (booking + passengers + payment in one transaction)
+router.post("/complete", authenticateUser, bookingController.createCompleteBooking);
+
+// Get all bookings (admin only)
 router.get("/", authenticateUser, authorizeRole(["admin"]), bookingController.getAllBookings);
 
-
+// Get booking by ID
 router.get("/:id", authenticateUser, bookingController.getBookingById);
-router.get("/:id", authenticateUser, bookingController.getBookingsByUserId);
 
+// Get bookings by user ID
+router.get("/user/:userId", authenticateUser, bookingController.getBookingsByUserId);
+
+// Update booking (admin only)
 router.put("/:id", authenticateUser, authorizeRole(["admin"]), bookingController.updateBooking);
 
+// Cancel booking
 router.delete("/:id", authenticateUser, bookingController.cancelBooking);
 
 

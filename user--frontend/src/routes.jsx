@@ -6,6 +6,10 @@ import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import Help from "./pages/Help";
 import SearchResults from "./pages/SearchResults";
+import BookingSummary from "./pages/BookingSummary";
+import Payment from "./pages/Payment";
+import BookingConfirmed from "./pages/BookingConfirmed";
+
 
 // Add routes
 
@@ -21,6 +25,9 @@ const AppRoutes = () => {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/help" element={<Help />} />
         <Route path="/search-results" element={<SearchResults />} />
+        <Route path="/booking-summary/:flightId/:returnFlightId?" element={<BookingSummary />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/booking-confirmed" element={<BookingConfirmed />} />
       </Routes>
     </Router>
   );

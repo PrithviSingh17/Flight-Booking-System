@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Checkbox, InputNumber, Button, message, Select, Row, Col } from "antd";
+import { Checkbox, InputNumber, Button, message, Select, Row, Col, Spin } from "antd";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
 import SearchBar from "../components/SearchBar";
@@ -35,6 +35,7 @@ const SearchResults = () => {
   const [sortBy, setSortBy] = useState("price");
   const [selectedOutboundFlight, setSelectedOutboundFlight] = useState(null);
   const [selectedReturnFlight, setSelectedReturnFlight] = useState(null);
+  const [passengerCount, setPassengerCount] = useState(1);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -43,7 +44,7 @@ const SearchResults = () => {
   const arrivalCity = searchParams.get("arrivalCity");
   const departureDate = searchParams.get("departureDate");
   const returnDate = searchParams.get("returnDate");
-  const passengers = searchParams.get("passengers");
+  const passengers = parseInt(searchParams.get("passengers")) || 1;
   const tripType = searchParams.get("tripType");
 
   const initialValues = {
@@ -51,9 +52,13 @@ const SearchResults = () => {
     arrivalCity,
     departureDate: departureDate ? moment(departureDate) : null,
     returnDate: returnDate ? moment(returnDate) : null,
-    passengers: passengers ? parseInt(passengers, 10) : 1,
+    passengers,
     tripType: tripType || "one-way",
   };
+
+  useEffect(() => {
+    setPassengerCount(passengers);
+  }, [passengers]);
 
   const formatTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -86,7 +91,7 @@ const SearchResults = () => {
             departure_date: departureDate,
             return_date: returnDate,
             trip_type: tripType,
-            passengers: passengers,
+            passengers,
           },
         });
 
@@ -132,7 +137,6 @@ const SearchResults = () => {
         setReturnFlights(formattedReturnFlights);
         setFlights([...formattedOutboundFlights, ...formattedReturnFlights]);
 
-        // Show appropriate messages
         if (formattedOutboundFlights.length === 0 && formattedReturnFlights.length === 0) {
           message.error("No flights found for the given criteria.");
         } else if (tripType === "return" && formattedOutboundFlights.length === 0) {
@@ -214,22 +218,53 @@ const SearchResults = () => {
   };
 
   const handleBookNow = () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      message.warning("Please login to continue with booking");
+      navigate("/auth", { 
+        state: { 
+          from: location.pathname + location.search,
+          bookingData: {
+            outboundFlight: selectedOutboundFlight,
+            returnFlight: selectedReturnFlight,
+            passengers: passengerCount
+          }
+        } 
+      });
+      return;
+    }
+
     if (!selectedOutboundFlight && !selectedReturnFlight) {
       message.error("Please select at least one flight to book");
       return;
     }
 
     if (tripType === "one-way" && selectedOutboundFlight) {
-      navigate(`/book-flight/${selectedOutboundFlight.flight_id}`);
+      navigate(`/booking-summary/${selectedOutboundFlight.flight_id}`, {
+        state: {
+          passengers: passengerCount,
+          tripType: "one-way"
+        }
+      });
     } 
     else if (tripType === "return") {
       if (selectedOutboundFlight && selectedReturnFlight) {
-        navigate(`/book-flight/${selectedOutboundFlight.flight_id}/${selectedReturnFlight.flight_id}`);
+        navigate(`/booking-summary/${selectedOutboundFlight.flight_id}/${selectedReturnFlight.flight_id}`, {
+          state: {
+            passengers: passengerCount,
+            tripType: "return"
+          }
+        });
       }
       else if (selectedOutboundFlight) {
         const confirm = window.confirm("Only outbound flight selected. Continue with one-way trip?");
         if (confirm) {
-          navigate(`/book-flight/${selectedOutboundFlight.flight_id}`);
+          navigate(`/booking-summary/${selectedOutboundFlight.flight_id}`, {
+            state: {
+              passengers: passengerCount,
+              tripType: "one-way"
+            }
+          });
         }
       }
       else if (selectedReturnFlight) {
@@ -280,100 +315,49 @@ const SearchResults = () => {
           <SearchBar initialValues={initialValues} />
         </div>
 
-        <div className="results-container">
-          <div className="filters-sidebar">
-            <h3>Filters</h3>
-            <div className="filter-group">
-              <h4>Airlines</h4>
-              <Checkbox.Group
-                options={["All", ...airlineOptions]}
-                value={selectedAirlines}
-                onChange={handleAirlineSelection}
-              />
-            </div>
-            <div className="filter-group">
-              <h4>Max Price</h4>
-              <InputNumber
-                placeholder="Enter max price"
-                style={{ width: "100%" }}
-                onChange={handleMaxPriceChange}
-              />
-            </div>
+        {loading ? (
+          <div className="loading-container">
+            <Spin size="large" />
           </div>
-
-          <div className="flight-results">
-            <h2>Search Results</h2>
-            <div className="sort-section">
-              <span>Sort by:</span>
-              <Select defaultValue="price" style={{ width: 150 }} onChange={handleSort}>
-                <Option value="price">Price</Option>
-                <Option value="departure_time">Departure Time</Option>
-              </Select>
+        ) : (
+          <div className="results-container">
+            <div className="filters-sidebar">
+              <h3>Filters</h3>
+              <div className="filter-group">
+                <h4>Airlines</h4>
+                <Checkbox.Group
+                  options={["All", ...airlineOptions]}
+                  value={selectedAirlines}
+                  onChange={handleAirlineSelection}
+                />
+              </div>
+              <div className="filter-group">
+                <h4>Max Price</h4>
+                <InputNumber
+                  placeholder="Enter max price"
+                  style={{ width: "100%" }}
+                  onChange={handleMaxPriceChange}
+                />
+              </div>
             </div>
 
-            <Row gutter={16}>
-              <Col span={tripType === "return" ? 12 : 24}>
-                <h3>Outbound Flights</h3>
-                {outboundFlights.length > 0 ? (
-                  outboundFlights.map((flight) => (
-                    <div 
-                      className={`flight-card ${tripType === "one-way" ? "one-way" : ""} ${selectedOutboundFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
-                      key={flight.flight_id}
-                      onClick={() => handleFlightSelection(flight)}
-                    >
-                      <div className="flight-info">
-                        <div className="airline-header">
-                          <div className="airline-logo">
-                            <img
-                              src={getAirlineLogo(flight.airline_name)}
-                              alt={flight.airline_name}
-                            />
-                          </div>
-                          <div className="airline">{flight.airline_name}</div>
-                        </div>
-                        
-                        <div className="route-container">
-                          <div className="timings-container">
-                            <div className="timings">
-                              <span className="icon">🛫</span>
-                              <span>{flight.departure_time}</span>
-                            </div>
-                            <div className="city-name">{flight.departure_city}</div>
-                          </div>
-                          
-                          <div className="arrow-container">
-                            <div className="route-arrow">→</div>
-                            <div className="route-duration">{flight.duration}</div>
-                          </div>
-                          
-                          <div className="timings-container">
-                            <div className="timings">
-                              <span>{flight.arrival_time}</span>
-                              <span className="icon">🛬</span>
-                            </div>
-                            <div className="city-name">{flight.arrival_city}</div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="price-section">
-                        <div className="price">₹{flight.price}</div>
-                        <div className="per-adult">per adult</div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-results">No outbound flights found.</div>
-                )}
-              </Col>
+            <div className="flight-results">
+              <h2>Search Results</h2>
+              <div className="sort-section">
+                <span>Sort by:</span>
+                <Select defaultValue="price" style={{ width: 150 }} onChange={handleSort}>
+                  <Option value="price">Price</Option>
+                  <Option value="departure_time">Departure Time</Option>
+                </Select>
+              </div>
 
-              {tripType === "return" && (
-                <Col span={12}>
-                  <h3>Return Flights</h3>
-                  {returnFlights.length > 0 ? (
-                    returnFlights.map((flight) => (
+              <Row gutter={16}>
+                <Col span={tripType === "return" ? 12 : 24}>
+                  <h3>Outbound Flights</h3>
+                  {outboundFlights.length > 0 ? (
+                    outboundFlights.map((flight) => (
                       <div 
-                        className={`flight-card ${selectedReturnFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
+                        className={`flight-card ${tripType === "one-way" ? "one-way" : ""} ${selectedOutboundFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
                         key={flight.flight_id}
                         onClick={() => handleFlightSelection(flight)}
                       >
@@ -419,72 +403,129 @@ const SearchResults = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="no-results">No return flights found.</div>
+                    <div className="no-results">No outbound flights found.</div>
                   )}
                 </Col>
-              )}
-            </Row>
+
+                {tripType === "return" && (
+                  <Col span={12}>
+                    <h3>Return Flights</h3>
+                    {returnFlights.length > 0 ? (
+                      returnFlights.map((flight) => (
+                        <div 
+                          className={`flight-card ${selectedReturnFlight?.flight_id === flight.flight_id ? 'selected' : ''}`}
+                          key={flight.flight_id}
+                          onClick={() => handleFlightSelection(flight)}
+                        >
+                          <div className="flight-info">
+                            <div className="airline-header">
+                              <div className="airline-logo">
+                                <img
+                                  src={getAirlineLogo(flight.airline_name)}
+                                  alt={flight.airline_name}
+                                />
+                              </div>
+                              <div className="airline">{flight.airline_name}</div>
+                            </div>
+                            
+                            <div className="route-container">
+                              <div className="timings-container">
+                                <div className="timings">
+                                  <span className="icon">🛫</span>
+                                  <span>{flight.departure_time}</span>
+                                </div>
+                                <div className="city-name">{flight.departure_city}</div>
+                              </div>
+                              
+                              <div className="arrow-container">
+                                <div className="route-arrow">→</div>
+                                <div className="route-duration">{flight.duration}</div>
+                              </div>
+                              
+                              <div className="timings-container">
+                                <div className="timings">
+                                  <span>{flight.arrival_time}</span>
+                                  <span className="icon">🛬</span>
+                                </div>
+                                <div className="city-name">{flight.arrival_city}</div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="price-section">
+                            <div className="price">₹{flight.price}</div>
+                            <div className="per-adult">per adult</div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-results">No return flights found.</div>
+                    )}
+                  </Col>
+                )}
+              </Row>
+            </div>
           </div>
-        </div>
+        )}
+
+        {(selectedOutboundFlight || selectedReturnFlight) && (
+          <div className="bottom-flight-details">
+            {selectedOutboundFlight && (
+              <div 
+                className="flight-detail-card"
+                data-airline={selectedOutboundFlight.airline_name}
+              >
+                <div className="airline-logo">
+                  <img
+                    src={getAirlineLogo(selectedOutboundFlight.airline_name)}
+                    alt={selectedOutboundFlight.airline_name}
+                  />
+                </div>
+                <div className="flight-info">
+                  <div className="flight-time">
+                    <span>{selectedOutboundFlight.departure_time}</span>
+                    <span className="duration">{selectedOutboundFlight.duration}</span>
+                    <span>{selectedOutboundFlight.arrival_time}</span>
+                  </div>
+                  <div className="flight-route">
+                    {selectedOutboundFlight.departure_city} → {selectedOutboundFlight.arrival_city}
+                  </div>
+                  <div className="flight-price">₹{selectedOutboundFlight.price}</div>
+                </div>
+              </div>
+            )}
+
+            {tripType === "return" && selectedReturnFlight && (
+              <div 
+                className="flight-detail-card"
+                data-airline={selectedReturnFlight.airline_name}
+              >
+                <div className="airline-logo">
+                  <img
+                    src={getAirlineLogo(selectedReturnFlight.airline_name)}
+                    alt={selectedReturnFlight.airline_name}
+                  />
+                </div>
+                <div className="flight-info">
+                  <div className="flight-time">
+                    <span>{selectedReturnFlight.departure_time}</span>
+                    <span className="duration">{selectedReturnFlight.duration}</span>
+                    <span>{selectedReturnFlight.arrival_time}</span>
+                  </div>
+                  <div className="flight-route">
+                    {selectedReturnFlight.departure_city} → {selectedReturnFlight.arrival_city}
+                  </div>
+                  <div className="flight-price">₹{selectedReturnFlight.price}</div>
+                </div>
+              </div>
+            )}
+
+            <Button type="primary" onClick={handleBookNow} className="book-button">
+              Book Now
+            </Button>
+          </div>
+        )}
       </div>
-
-      {(selectedOutboundFlight || selectedReturnFlight) && (
-        <div className="bottom-flight-details">
-          {selectedOutboundFlight && (
-            <div 
-              className="flight-detail-card"
-              data-airline={selectedOutboundFlight.airline_name}
-            >
-              <div className="airline-logo">
-                <img
-                  src={getAirlineLogo(selectedOutboundFlight.airline_name)}
-                  alt={selectedOutboundFlight.airline_name}
-                />
-              </div>
-              <div className="flight-info">
-                <div className="flight-time">
-                  <span>{selectedOutboundFlight.departure_time}</span>
-                  <span className="duration">{selectedOutboundFlight.duration}</span>
-                  <span>{selectedOutboundFlight.arrival_time}</span>
-                </div>
-                <div className="flight-route">
-                  {selectedOutboundFlight.departure_city} → {selectedOutboundFlight.arrival_city}
-                </div>
-                <div className="flight-price">₹{selectedOutboundFlight.price}</div>
-              </div>
-            </div>
-          )}
-
-          {tripType === "return" && selectedReturnFlight && (
-            <div 
-              className="flight-detail-card"
-              data-airline={selectedReturnFlight.airline_name}
-            >
-              <div className="airline-logo">
-                <img
-                  src={getAirlineLogo(selectedReturnFlight.airline_name)}
-                  alt={selectedReturnFlight.airline_name}
-                />
-              </div>
-              <div className="flight-info">
-                <div className="flight-time">
-                  <span>{selectedReturnFlight.departure_time}</span>
-                  <span className="duration">{selectedReturnFlight.duration}</span>
-                  <span>{selectedReturnFlight.arrival_time}</span>
-                </div>
-                <div className="flight-route">
-                  {selectedReturnFlight.departure_city} → {selectedReturnFlight.arrival_city}
-                </div>
-                <div className="flight-price">₹{selectedReturnFlight.price}</div>
-              </div>
-            </div>
-          )}
-
-          <Button type="primary" onClick={handleBookNow} className="book-button">
-            Book Now
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

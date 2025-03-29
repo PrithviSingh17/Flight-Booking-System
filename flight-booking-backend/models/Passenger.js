@@ -67,16 +67,8 @@ const Passenger = sequelize.define("passenger", {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    frequent_flyer_number: {
-        type: DataTypes.STRING(20),
-        allowNull: true
-    },
-    baggage_weight: {
-        type: DataTypes.DECIMAL(5,2),
-        allowNull: true
-    },
     created_by: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       created_at: {
@@ -87,14 +79,14 @@ const Passenger = sequelize.define("passenger", {
         }
     },
       modified_by: {
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       modified_at: {
         type: DataTypes.DATE,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
         onUpdate: sequelize.literal('CURRENT_TIMESTAMP')
-      }
+      },
 }, {
     timestamps: false
 });

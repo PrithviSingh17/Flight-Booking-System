@@ -2,10 +2,6 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const moment = require('moment');
 
-const User = require("./User");
-const Flight = require("./Flight");
-const BookingStatusMaster = require("./BookingStatusMaster");
-
 const Booking = sequelize.define("Booking", {
     booking_id: {
         type: DataTypes.INTEGER,
@@ -16,7 +12,7 @@ const Booking = sequelize.define("Booking", {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: User,
+            model: "users",
             key: "user_id"
         }
     },
@@ -24,7 +20,7 @@ const Booking = sequelize.define("Booking", {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Flight,
+            model: "flights",
             key: "flight_id"
         }
     },
@@ -32,16 +28,31 @@ const Booking = sequelize.define("Booking", {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: BookingStatusMaster,
-            key: "booking_status_id"
+            model: "booking_status_master",
+            key: "status_id"
         }
     },
     payment_status: {
         type: DataTypes.ENUM('Success', 'Failed', 'Pending'),
         allowNull: false,
         defaultValue: 'Pending'
-      }
-      ,      
+    },
+    roundtrip_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: "bookings",
+            key: "booking_id"
+        }
+    },
+    is_roundtrip: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    total_price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true
+    },
     booking_date: {
         type: DataTypes.DATE,
         allowNull: false
@@ -63,23 +74,34 @@ const Booking = sequelize.define("Booking", {
         type: DataTypes.DATE,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
         onUpdate: sequelize.literal('CURRENT_TIMESTAMP')
-      }
+    }
 }, {
     tableName: "bookings",
-    timestamps: false
+    timestamps: false,
+    hooks: {
+        beforeCreate: async (booking) => {
+            if (booking.is_roundtrip && !booking.roundtrip_id) {
+                throw new Error("Roundtrip bookings must reference another booking");
+            }
+        }
+    }
+},
+{
+    tableName: "bookings",
+    timestamps: false,
+    hooks: {
+        beforeCreate: async (booking) => {
+            // Modified validation to allow temporary null for roundtrip_id
+            if (booking.is_roundtrip && !booking.roundtrip_id) {
+                // We'll set the roundtrip_id after both bookings are created
+                return;
+            }
+        },
+        afterCreate: async (booking) => {
+            // Additional hook if you need to perform any post-creation logic
+        }
+    }
 });
-Booking.belongsTo(BookingStatusMaster, {
-    foreignKey: "booking_status_id",
-    as: "status", // This alias is used in the include statement
-  });
-Booking.belongsTo(User, {
-    foreignKey: "user_id",
-    as: "user",
-  });
-Booking.belongsTo(Flight, {
-    foreignKey: "flight_id",
-    as: "flight",
-  });
-    
+
 
 module.exports = Booking;

@@ -1,30 +1,66 @@
 const Passenger = require("../models/Passenger");
 const Booking = require("../models/Booking");
+const sequelize = require("../config/db");
 
 
-exports.createPassenger = async (req, res) => {
+exports.createPassengersForBooking = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-        const { booking_id, passengers } = req.body;
+        const { booking_id, return_booking_id, passengers } = req.body;
 
-        if (!booking_id || !Array.isArray(passengers) || passengers.length === 0) {
-            return res.status(400).json({ error: "Invalid request. Ensure booking_id and passengers array are provided." });
+        // Validate booking exists
+        const [booking, returnBooking] = await Promise.all([
+            Booking.findByPk(booking_id, { transaction }),
+            return_booking_id ? Booking.findByPk(return_booking_id, { transaction }) : null
+        ]);
+
+        if (!booking || (return_booking_id && !returnBooking)) {
+            await transaction.rollback();
+            return res.status(404).json({ 
+                error: "Booking not found",
+                solution: "Verify booking IDs before passenger creation"
+            });
         }
 
-        
-        const passengersData = passengers.map(p => ({
+        // Atomic passenger creation
+        const outboundPassengers = passengers.map(p => ({
             ...p,
             booking_id,
-            created_by: req.user.user_id,
-            modified_by: req.user.user_id
+            created_by: req.user.user_id
         }));
 
-        
-        const newPassengers = await Passenger.bulkCreate(passengersData);
+        const createdPassengers = await Passenger.bulkCreate(outboundPassengers, { 
+            transaction,
+            returning: true 
+        });
 
-        res.status(201).json({ message: "Passengers added successfully", passengers: newPassengers });
+        // For roundtrips
+        if (returnBooking) {
+            const returnPassengers = passengers.map(p => ({
+                ...p,
+                booking_id: return_booking_id,
+                created_by: req.user.user_id
+            }));
+            await Passenger.bulkCreate(returnPassengers, { transaction });
+        }
+
+        await transaction.commit();
+        res.status(201).json({
+            success: true,
+            passenger_count: createdPassengers.length,
+            booking_ids: {
+                outbound: booking_id,
+                return: return_booking_id || null
+            }
+        });
+
     } catch (error) {
-        console.error("Error Adding Passengers:", error);
-        res.status(500).json({ error: error.message });
+        await transaction.rollback();
+        res.status(500).json({
+            error: "Passenger creation failed",
+            details: error.message,
+            recovery_advice: "Retry with same booking IDs"
+        });
     }
 };
 

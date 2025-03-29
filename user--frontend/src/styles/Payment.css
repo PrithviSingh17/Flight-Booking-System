@@ -1,0 +1,103 @@
+/* Payment.css */
+.payment-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.flight-details-card,
+.add-ons-card,
+.payment-options-card,
+.price-summary-card {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.flight-card {
+  display: flex;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.airline-logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 16px;
+}
+
+.airline-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.flight-info {
+  flex: 1;
+}
+
+.flight-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.flight-timings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.departure,
+.arrival {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.duration {
+  text-align: center;
+}
+
+.passenger-details {
+  margin-top: 16px;
+}
+
+.passenger-info {
+  margin-top: 8px;
+}
+
+.add-on-option {
+  padding: 12px 0;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.price-row.total {
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.pay-now-button {
+  margin-top: 16px;
+  height: 48px;
+  font-size: 16px;
+}

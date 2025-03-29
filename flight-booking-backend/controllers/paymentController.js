@@ -3,6 +3,7 @@ const Booking = require("../models/Booking");
 const User = require("../models/User");
 const PaymentMethodMaster = require("../models/PaymentMethodMaster");
 
+
 // Create a new payment
 exports.createPayment = async (req, res) => {
     try {

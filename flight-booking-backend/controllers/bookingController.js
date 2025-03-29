@@ -1,66 +1,203 @@
 const Booking = require("../models/Booking");
-const { Op } = require("sequelize");
-const BookingStatusMaster = require("../models/BookingStatusMaster"); 
 const Passenger = require("../models/Passenger");
+const Flight = require("../models/Flight");
+const Payment = require("../models/Payment");
+const sequelize = require("../config/db");
+const moment = require('moment');
+const BookingStatusMaster = require("../models/BookingStatusMaster");
+// Helper function for seat assignment
+const generateSeatNumber = () => {
+  const letters = 'ABCDEF';
+  const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+  const randomNumber = Math.floor(Math.random() * 30) + 1; // 1-30
+  return `${randomLetter}${randomNumber}`;
+};
 
-const { sequelize } = require("../config/db");
-
-exports.createBookingWithPassengers = async (req, res) => {
-    const transaction = await sequelize.transaction(); // Start a transaction
+exports.createCompleteBooking = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-        const { user_id, flight_id, booking_status_id, payment_status, booking_date, passengers } = req.body;
+        const { flight_id, return_flight_id, passengers } = req.body;
+        const is_roundtrip = !!return_flight_id;
 
-        // Validate required fields
-        if (!user_id || !flight_id || !booking_status_id || !booking_date || !passengers || passengers.length === 0) {
-            return res.status(400).json({ error: "Missing required fields" });
+        // Validate flights
+        const [outboundFlight, returnFlight] = await Promise.all([
+            Flight.findByPk(flight_id, { transaction }),
+            is_roundtrip ? Flight.findByPk(return_flight_id, { transaction }) : null
+        ]);
+
+        if (!outboundFlight || (is_roundtrip && !returnFlight)) {
+            await transaction.rollback();
+            return res.status(400).json({ error: "Invalid flight selection" });
         }
 
-        // Create the booking
-        const booking = await Booking.create(
-            {
-                user_id,
-                flight_id,
-                booking_status_id,
-                payment_status: payment_status || "Pending", // Default to "Pending"
-                booking_date,
-                created_by: req.user.user_id,
-                modified_by: req.user.user_id,
-            },
-            { transaction }
-        );
-
-        // Add passengers to the booking
-        const passengerData = passengers.map((passenger) => ({
-            ...passenger,
-            booking_id: booking.booking_id,
+        // Create outbound booking (with temporary null roundtrip_id)
+        const outboundBooking = await Booking.create({
+            user_id: req.user.user_id,
+            flight_id,
+            booking_status_id: 1,
+            booking_date: moment().format("YYYY-MM-DD"),
+            is_roundtrip,
+            total_price: outboundFlight.price * passengers.length,
+            payment_status: 'Pending',
             created_by: req.user.user_id,
             modified_by: req.user.user_id,
+            roundtrip_id: null // Will be updated later for roundtrips
+        }, { transaction });
+
+        let returnBooking = null;
+        if (is_roundtrip) {
+            // Create return booking with reference to outbound
+            returnBooking = await Booking.create({
+                user_id: req.user.user_id,
+                flight_id: return_flight_id,
+                booking_status_id: 1,
+                booking_date: moment().format("YYYY-MM-DD"),
+                is_roundtrip,
+                roundtrip_id: outboundBooking.booking_id,
+                total_price: returnFlight.price * passengers.length,
+                payment_status: 'Pending',
+                created_by: req.user.user_id,
+                modified_by: req.user.user_id
+            }, { transaction });
+
+            // Update outbound with return reference
+            await outboundBooking.update({
+                roundtrip_id: returnBooking.booking_id,
+                total_price: outboundBooking.total_price + returnBooking.total_price
+            }, { transaction });
+        }
+
+        // Create passengers with seat numbers
+        const outboundPassengers = passengers.map(p => ({
+            ...p,
+            booking_id: outboundBooking.booking_id,
+            created_by: req.user.user_id,
+            modified_by: req.user.user_id,
+            seat_number: generateSeatNumber() // Assign random seat
         }));
 
-        await Passenger.bulkCreate(passengerData, { transaction });
+        await Passenger.bulkCreate(outboundPassengers, { transaction });
 
-        // Commit the transaction
+        if (is_roundtrip && returnBooking) {
+            const returnPassengers = passengers.map(p => ({
+                ...p,
+                booking_id: returnBooking.booking_id,
+                created_by: req.user.user_id,
+                modified_by: req.user.user_id,
+                seat_number: generateSeatNumber() // Different seat for return
+            }));
+            await Passenger.bulkCreate(returnPassengers, { transaction });
+        }
+
+        // Create payment record
+        const payment = await Payment.create({
+            booking_id: outboundBooking.booking_id,
+            user_id: req.user.user_id,
+            amount: is_roundtrip 
+                ? outboundFlight.price * passengers.length + returnFlight.price * passengers.length
+                : outboundFlight.price * passengers.length,
+            payment_method_id: 1, // Default method
+            payment_status: 'Pending',
+            created_by: req.user.user_id
+        }, { transaction });
+
         await transaction.commit();
 
-        // Fetch the booking with passengers to return in the response
-        const bookingWithPassengers = await Booking.findOne({
-            where: { booking_id: booking.booking_id },
-            include: [
-                { model: Passenger, as: "passengers" },
-                { model: User, as: "user" },
-                { model: Flight, as: "flight" },
-                { model: BookingStatusMaster, as: "status" },
-            ],
+        res.status(201).json({
+            success: true,
+            booking_id: outboundBooking.booking_id,
+            return_booking_id: returnBooking?.booking_id || null,
+            payment_id: payment.payment_id,
+            amount: payment.amount,
+            seat_numbers: outboundPassengers.map(p => p.seat_number)
         });
 
-        res.status(201).json(bookingWithPassengers);
     } catch (error) {
-        // Rollback the transaction in case of error
         await transaction.rollback();
-        console.error("Error creating booking:", error);
-        res.status(500).json({ message: "Error creating booking", error: error.message });
+        console.error("Booking error:", error);
+        res.status(500).json({ 
+            error: "Booking failed",
+            details: error.message
+        });
     }
 };
+
+exports.createBookingWithPassengers = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const { user_id, flight_id, return_flight_id, passengers, booking_date } = req.body;
+        const is_roundtrip = !!return_flight_id;
+
+        // Validate flights exist
+        const [outboundFlight, returnFlight] = await Promise.all([
+            Flight.findByPk(flight_id, { transaction }),
+            is_roundtrip ? Flight.findByPk(return_flight_id, { transaction }) : null
+        ]);
+
+        if (!outboundFlight || (is_roundtrip && !returnFlight)) {
+            await transaction.rollback();
+            return res.status(400).json({ error: "Invalid flight selection" });
+        }
+
+        // Roundtrip validation
+        if (is_roundtrip) {
+            if (outboundFlight.arrival_city !== returnFlight.departure_city || 
+                outboundFlight.departure_city !== returnFlight.arrival_city) {
+                await transaction.rollback();
+                return res.status(400).json({ error: "Return flight must be reverse route" });
+            }
+        }
+
+        // Create bookings
+        const outboundBooking = await Booking.create({
+            user_id,
+            flight_id,
+            booking_status_id: 1, // Confirmed
+            booking_date,
+            is_roundtrip,
+            total_price: outboundFlight.price * passengers.length,
+            created_by: req.user.user_id
+        }, { transaction });
+
+        let returnBooking = null;
+        if (is_roundtrip) {
+            returnBooking = await Booking.create({
+                user_id,
+                flight_id: return_flight_id,
+                booking_status_id: 1,
+                booking_date,
+                is_roundtrip,
+                roundtrip_id: outboundBooking.booking_id,
+                total_price: returnFlight.price * passengers.length,
+                created_by: req.user.user_id
+            }, { transaction });
+
+            await outboundBooking.update({ 
+                roundtrip_id: returnBooking.booking_id,
+                total_price: outboundBooking.total_price + returnBooking.total_price
+            }, { transaction });
+        }
+
+        await transaction.commit();
+        
+        // SINGLE RESPONSE - REMOVED THE DUPLICATE RESPONSE
+        res.status(201).json({
+            success: true,
+            outbound_booking: outboundBooking,
+            return_booking: returnBooking,
+            next_step: `POST /passengers with booking IDs`
+        });
+
+    } catch (error) {
+        await transaction.rollback();
+        res.status(500).json({
+            error: "Booking creation failed",
+            details: error.message,
+            system_action: "All database changes rolled back"
+        });
+    }
+};
+
 
 
 exports.getAllBookings = async (req, res) => {
