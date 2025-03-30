@@ -220,42 +220,45 @@ const Payment = () => {
           </Col>
 
           <Col span={8}>
-            {/* Price Summary */}
-            <Card className="price-summary-card">
-              <Title level={4}>Price Summary</Title>
-              <div className="price-row">
-                <Text>Base Fare ({state.passengers.length} {state.passengers.length > 1 ? 'passengers' : 'passenger'}):</Text>
-                <Text>₹{state.bookingData.amount - state.bookingData.taxes}</Text>
-              </div>
-              <div className="price-row">
-                <Text>Taxes & Fees:</Text>
-                <Text>₹{state.bookingData.taxes}</Text>
-              </div>
-              {selectedAddOns.includes('flight_protection') && (
-                <div className="price-row">
-                  <Text>Flight Protection:</Text>
-                  <Text>₹{state.passengers.length * 1.99}</Text>
-                </div>
-              )}
-              <Divider />
-              <div className="price-row total">
-                <Text strong>Total Amount:</Text>
-                <Text strong>
-                  ₹{state.bookingData.amount + (selectedAddOns.includes('flight_protection') ? state.passengers.length * 1.99 : 0)}
-                </Text>
-              </div>
-              <Button 
-                type="primary" 
-                size="large" 
-                block
-                onClick={handlePayment}
-                disabled={!selectedMethod}
-                className="pay-now-button"
-              >
-                Pay Now
-              </Button>
-            </Card>
-          </Col>
+        {/* Updated Price Summary Card */}
+        <Card className="price-summary-card">
+          <Title level={4}>Price Summary</Title>
+          <div className="price-row">
+            <Text>Base Fare ({state.passengers.length} {state.passengers.length > 1 ? 'passengers' : 'passenger'}):</Text>
+            <Text>₹{state.fareDetails?.baseFare?.toLocaleString('en-IN')}</Text>
+          </div>
+          <div className="price-row">
+            <Text>Taxes & Fees:</Text>
+            <Text>₹{state.fareDetails?.taxes?.total?.toLocaleString('en-IN')}</Text>
+          </div>
+          {selectedAddOns.includes('flight_protection') && (
+            <div className="price-row">
+              <Text>Flight Protection:</Text>
+              <Text>₹{(state.passengers.length * 1.99).toLocaleString('en-IN')}</Text>
+            </div>
+          )}
+          <Divider />
+          <div className="price-row total">
+            <Text strong>Total Amount:</Text>
+            <Text strong>
+              ₹{(
+                state.fareDetails?.totalAmount + 
+                (selectedAddOns.includes('flight_protection') ? state.passengers.length * 1.99 : 0)
+              ).toLocaleString('en-IN')}
+            </Text>
+          </div>
+          <Button 
+            type="primary" 
+            size="large" 
+            block
+            onClick={handlePayment}
+            disabled={!selectedMethod}
+            className="pay-now-button"
+          >
+            Pay Now
+          </Button>
+        </Card>
+      </Col>
         </Row>
       </div>
     </div>

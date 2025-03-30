@@ -80,17 +80,6 @@ const Booking = sequelize.define("Booking", {
     timestamps: false,
     hooks: {
         beforeCreate: async (booking) => {
-            if (booking.is_roundtrip && !booking.roundtrip_id) {
-                throw new Error("Roundtrip bookings must reference another booking");
-            }
-        }
-    }
-},
-{
-    tableName: "bookings",
-    timestamps: false,
-    hooks: {
-        beforeCreate: async (booking) => {
             // Modified validation to allow temporary null for roundtrip_id
             if (booking.is_roundtrip && !booking.roundtrip_id) {
                 // We'll set the roundtrip_id after both bookings are created

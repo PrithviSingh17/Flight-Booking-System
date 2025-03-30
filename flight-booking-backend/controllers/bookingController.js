@@ -30,23 +30,33 @@ exports.createCompleteBooking = async (req, res) => {
             return res.status(400).json({ error: "Invalid flight selection" });
         }
 
-        // Create outbound booking (with temporary null roundtrip_id)
+        // Convert prices to numbers and calculate totals
+        const outboundPrice = Number(outboundFlight.price);
+        const outboundTotal = parseFloat((outboundPrice * passengers.length).toFixed(2));
+
+        // Create outbound booking
         const outboundBooking = await Booking.create({
             user_id: req.user.user_id,
             flight_id,
             booking_status_id: 1,
             booking_date: moment().format("YYYY-MM-DD"),
             is_roundtrip,
-            total_price: outboundFlight.price * passengers.length,
+            total_price: outboundTotal,
             payment_status: 'Pending',
             created_by: req.user.user_id,
             modified_by: req.user.user_id,
-            roundtrip_id: null // Will be updated later for roundtrips
+            roundtrip_id: null
         }, { transaction });
 
         let returnBooking = null;
+        let returnTotal = 0; // Initialize returnTotal here
+
         if (is_roundtrip) {
-            // Create return booking with reference to outbound
+            // Calculate return trip total
+            const returnPrice = Number(returnFlight.price);
+            returnTotal = parseFloat((returnPrice * passengers.length).toFixed(2));
+
+            // Create return booking
             returnBooking = await Booking.create({
                 user_id: req.user.user_id,
                 flight_id: return_flight_id,
@@ -54,16 +64,17 @@ exports.createCompleteBooking = async (req, res) => {
                 booking_date: moment().format("YYYY-MM-DD"),
                 is_roundtrip,
                 roundtrip_id: outboundBooking.booking_id,
-                total_price: returnFlight.price * passengers.length,
+                total_price: returnTotal,
                 payment_status: 'Pending',
                 created_by: req.user.user_id,
                 modified_by: req.user.user_id
             }, { transaction });
 
-            // Update outbound with return reference
+            // Update outbound with combined total (as number)
+            const combinedTotal = parseFloat((outboundTotal + returnTotal).toFixed(2));
             await outboundBooking.update({
                 roundtrip_id: returnBooking.booking_id,
-                total_price: outboundBooking.total_price + returnBooking.total_price
+                total_price: combinedTotal
             }, { transaction });
         }
 
@@ -73,7 +84,7 @@ exports.createCompleteBooking = async (req, res) => {
             booking_id: outboundBooking.booking_id,
             created_by: req.user.user_id,
             modified_by: req.user.user_id,
-            seat_number: generateSeatNumber() // Assign random seat
+            seat_number: generateSeatNumber()
         }));
 
         await Passenger.bulkCreate(outboundPassengers, { transaction });
@@ -84,19 +95,21 @@ exports.createCompleteBooking = async (req, res) => {
                 booking_id: returnBooking.booking_id,
                 created_by: req.user.user_id,
                 modified_by: req.user.user_id,
-                seat_number: generateSeatNumber() // Different seat for return
+                seat_number: generateSeatNumber()
             }));
             await Passenger.bulkCreate(returnPassengers, { transaction });
         }
 
         // Create payment record
+        const paymentAmount = is_roundtrip 
+            ? parseFloat((outboundTotal + returnTotal).toFixed(2))
+            : outboundTotal;
+
         const payment = await Payment.create({
             booking_id: outboundBooking.booking_id,
             user_id: req.user.user_id,
-            amount: is_roundtrip 
-                ? outboundFlight.price * passengers.length + returnFlight.price * passengers.length
-                : outboundFlight.price * passengers.length,
-            payment_method_id: 1, // Default method
+            amount: paymentAmount,
+            payment_method_id: 1,
             payment_status: 'Pending',
             created_by: req.user.user_id
         }, { transaction });
@@ -108,7 +121,7 @@ exports.createCompleteBooking = async (req, res) => {
             booking_id: outboundBooking.booking_id,
             return_booking_id: returnBooking?.booking_id || null,
             payment_id: payment.payment_id,
-            amount: payment.amount,
+            amount: paymentAmount,
             seat_numbers: outboundPassengers.map(p => p.seat_number)
         });
 
