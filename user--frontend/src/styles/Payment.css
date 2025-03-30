@@ -62,42 +62,116 @@
   text-align: center;
 }
 
+/* Enhanced Passenger Details */
 .passenger-details {
   margin-top: 16px;
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  border-left: 4px solid #1890ff;
+}
+
+.passenger-details-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .passenger-info {
-  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0 8px 24px;
+  border-top: 1px dashed #e8e8e8;
+  margin-top: 12px;
 }
 
-.add-on-option {
-  padding: 12px 0;
-}
-
-.payment-method {
+.passenger-info-item {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.payment-icon {
-  width: 24px;
-  height: 24px;
+/* Enhanced Add-ons */
+.add-ons-card .ant-checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
 }
 
+.add-ons-card .ant-checkbox {
+  margin-top: 4px;
+}
+
+.add-on-option {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.add-on-option:last-child {
+  border-bottom: none;
+}
+
+/* Enhanced Payment Methods */
+.payment-options-card .ant-radio-wrapper {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.payment-options-card .ant-radio {
+  align-self: center;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  margin-left: 8px;
+  flex-grow: 1;
+  transition: all 0.3s;
+}
+
+.payment-method:hover {
+  border-color: #1890ff;
+  background: #f5f9ff;
+}
+
+.payment-method .anticon {
+  color: #1890ff;
+  margin-right: 8px;
+}
+
+/* Price Summary */
 .price-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #f0f0f0;
 }
 
 .price-row.total {
   font-size: 16px;
   margin-top: 12px;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .pay-now-button {
   margin-top: 16px;
   height: 48px;
   font-size: 16px;
+  font-weight: 500;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }

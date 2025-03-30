@@ -13,6 +13,16 @@ import {
   Col, 
   Checkbox
 } from "antd";
+import { 
+  UserOutlined, 
+  MailOutlined, 
+  PhoneOutlined,
+  CreditCardOutlined,
+  IdcardOutlined,
+  QrcodeOutlined,
+  BankOutlined,
+  SafetyOutlined
+} from '@ant-design/icons';
 import API from "../services/api";
 import "../styles/Payment.css";
 import moment from "moment";
@@ -21,7 +31,7 @@ import airIndiaLogo from "../assets/airindia.jpg";
 import spicejetLogo from "../assets/spicejet.png";
 import vistaratLogo from "../assets/vistara.jpg";
 import goFirstLogo from "../assets/gofirst.jpg";
-// Import your logo map
+
 const airlineLogoMap = {
   "IndiGo": indigoLogo,
   "Air India": airIndiaLogo,
@@ -29,6 +39,7 @@ const airlineLogoMap = {
   "Vistara": vistaratLogo,
   "GoAir": goFirstLogo,
 };
+
 const { Title, Text } = Typography;
 const { Step } = Steps;
 
@@ -40,7 +51,6 @@ const Payment = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
 
-  // Get airline logo function
   const getAirlineLogo = (airlineName) => {
     return airlineLogoMap[airlineName] || airlineLogoMap["IndiGo"];
   };
@@ -174,10 +184,23 @@ const Payment = () => {
               {/* Passenger Details */}
               <Divider />
               <div className="passenger-details">
-                <Text strong>Passenger Details</Text>
+                <div className="passenger-details-header">
+                  <UserOutlined />
+                  <Text strong>Passenger Details</Text>
+                </div>
                 <div className="passenger-info">
-                  <Text>{state.passengers[0].name}</Text>
-                  <Text>{state.passengers[0].email}, +91-{state.passengers[0].contact_number}</Text>
+                  <div className="passenger-info-item">
+                    <UserOutlined />
+                    <Text>{state.passengers[0].name}</Text>
+                  </div>
+                  <div className="passenger-info-item">
+                    <MailOutlined />
+                    <Text>{state.passengers[0].email}</Text>
+                  </div>
+                  <div className="passenger-info-item">
+                    <PhoneOutlined />
+                    <Text>+91-{state.passengers[0].contact_number}</Text>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -193,9 +216,14 @@ const Payment = () => {
                     setSelectedAddOns(selectedAddOns.filter(item => item !== 'flight_protection'));
                   }
                 }}>
-                  <Text strong>Flight Delay Protection</Text>
-                  <Text>Get hassle-free compensation of ₹1000 if your flight is delayed by one hour or more</Text>
-                  <Text type="secondary">Add @ ₹1.99 per person</Text>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <SafetyOutlined style={{ fontSize: 18, color: '#52c41a', marginTop: 2 }} />
+                    <div>
+                      <Text strong>Flight Delay Protection</Text><br />
+                      <Text type="secondary">Get hassle-free compensation of ₹1000 if your flight is delayed by one hour or more</Text><br />
+                      <Text type="secondary">Add @ ₹1.99 per person</Text>
+                    </div>
+                  </div>
                 </Checkbox>
               </div>
             </Card>
@@ -208,10 +236,13 @@ const Payment = () => {
                 value={selectedMethod}
               >
                 {paymentMethods.map(method => (
-                  <Radio key={method.method_id} value={method.method_id}>
+                  <Radio key={method.method_id} value={method.method_id} style={{ width: '100%', marginBottom: 8 }}>
                     <div className="payment-method">
-                      <img src={method.icon} alt={method.method_name} className="payment-icon" />
-                      <Text>{method.method_name}</Text>
+                      {method.method_name === "Credit Card" && <CreditCardOutlined style={{ fontSize: 20 }} />}
+                      {method.method_name === "Debit Card" && <IdcardOutlined style={{ fontSize: 20 }} />}
+                      {method.method_name === "UPI" && <QrcodeOutlined style={{ fontSize: 20 }} />}
+                      {method.method_name === "Net Banking" && <BankOutlined style={{ fontSize: 20 }} />}
+                      <Text style={{ marginLeft: 12 }}>{method.method_name}</Text>
                     </div>
                   </Radio>
                 ))}
@@ -220,45 +251,44 @@ const Payment = () => {
           </Col>
 
           <Col span={8}>
-        {/* Updated Price Summary Card */}
-        <Card className="price-summary-card">
-          <Title level={4}>Price Summary</Title>
-          <div className="price-row">
-            <Text>Base Fare ({state.passengers.length} {state.passengers.length > 1 ? 'passengers' : 'passenger'}):</Text>
-            <Text>₹{state.fareDetails?.baseFare?.toLocaleString('en-IN')}</Text>
-          </div>
-          <div className="price-row">
-            <Text>Taxes & Fees:</Text>
-            <Text>₹{state.fareDetails?.taxes?.total?.toLocaleString('en-IN')}</Text>
-          </div>
-          {selectedAddOns.includes('flight_protection') && (
-            <div className="price-row">
-              <Text>Flight Protection:</Text>
-              <Text>₹{(state.passengers.length * 1.99).toLocaleString('en-IN')}</Text>
-            </div>
-          )}
-          <Divider />
-          <div className="price-row total">
-            <Text strong>Total Amount:</Text>
-            <Text strong>
-              ₹{(
-                state.fareDetails?.totalAmount + 
-                (selectedAddOns.includes('flight_protection') ? state.passengers.length * 1.99 : 0)
-              ).toLocaleString('en-IN')}
-            </Text>
-          </div>
-          <Button 
-            type="primary" 
-            size="large" 
-            block
-            onClick={handlePayment}
-            disabled={!selectedMethod}
-            className="pay-now-button"
-          >
-            Pay Now
-          </Button>
-        </Card>
-      </Col>
+            <Card className="price-summary-card">
+              <Title level={4}>Price Summary</Title>
+              <div className="price-row">
+                <Text>Base Fare ({state.passengers.length} {state.passengers.length > 1 ? 'passengers' : 'passenger'}):</Text>
+                <Text>₹{state.fareDetails?.baseFare?.toLocaleString('en-IN')}</Text>
+              </div>
+              <div className="price-row">
+                <Text>Taxes & Fees:</Text>
+                <Text>₹{state.fareDetails?.taxes?.total?.toLocaleString('en-IN')}</Text>
+              </div>
+              {selectedAddOns.includes('flight_protection') && (
+                <div className="price-row">
+                  <Text>Flight Protection:</Text>
+                  <Text>₹{(state.passengers.length * 1.99).toLocaleString('en-IN')}</Text>
+                </div>
+              )}
+              <Divider />
+              <div className="price-row total">
+                <Text strong>Total Amount:</Text>
+                <Text strong>
+                  ₹{(
+                    state.fareDetails?.totalAmount + 
+                    (selectedAddOns.includes('flight_protection') ? state.passengers.length * 1.99 : 0)
+                  ).toLocaleString('en-IN')}
+                </Text>
+              </div>
+              <Button 
+                type="primary" 
+                size="large" 
+                block
+                onClick={handlePayment}
+                disabled={!selectedMethod}
+                className="pay-now-button"
+              >
+                Pay Now
+              </Button>
+            </Card>
+          </Col>
         </Row>
       </div>
     </div>

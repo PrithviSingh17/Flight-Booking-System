@@ -243,7 +243,8 @@ body, html {
 }
 
 .city-name {
-  margin-top: 40px;
+  margin-top: 80px;
+  padding: 30px;
   font-size: 18px;
   font-weight: bold;
   color: #333;

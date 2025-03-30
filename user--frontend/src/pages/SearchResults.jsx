@@ -223,13 +223,21 @@ const SearchResults = () => {
       message.warning("Please login to continue with booking");
       navigate("/auth", { 
         state: { 
-          from: location.pathname + location.search,
+          from: `/search-results${location.search}`, // Redirect back to search results
           bookingData: {
             outboundFlight: selectedOutboundFlight,
             returnFlight: selectedReturnFlight,
-            passengers: passengerCount
-          }
-        } 
+            passengers: passengerCount,
+            searchParams: {
+              departureCity,
+              arrivalCity,
+              departureDate,
+              returnDate,
+              passengers,
+              tripType,
+            },
+          },
+        }, 
       });
       return;
     }
