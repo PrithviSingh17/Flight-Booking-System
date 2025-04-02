@@ -1,37 +1,134 @@
+/* BookingConfirmed.css */
 .booking-confirmed-container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 0 20px;
+  max-width: 1200px; /* Increased from 800px */
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+/* Header Styles */
+.confirmation-header {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Flight Ticket Segment */
+.flight-ticket-segment {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  border-left: 4px solid #1890ff;
+}
+
+.flight-ticket-segment .flight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.flight-time {
+  margin-bottom: 8px;
+}
+
+.flight-airport {
+  margin-top: 4px;
+}
+
+.duration-line {
+  border-top: 2px dashed #d9d9d9;
+  margin: 8px 0;
+  position: relative;
+  height: 1px;
+}
+
+/* Passenger Details */
+.passenger-detail {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.passenger-detail:last-child {
+  border-bottom: none;
+}
+
+/* Receipt Card */
+.receipt-card {
+  position: sticky;
+  top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.receipt-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.price-breakdown .price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.price-breakdown .total {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 16px;
+}
+
+/* QR Code */
+.qr-placeholder {
+  text-align: center;
+  padding: 12px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+/* Steps Progress */
+.ant-steps {
+  margin: 24px 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .booking-confirmed-container {
+    padding: 0 10px;
   }
   
-  .booking-details-card {
-    margin-top: 30px;
+  .receipt-card {
+    position: static;
+    margin-top: 24px;
   }
   
-  .flight-details {
-    padding: 10px;
+  .flight-ticket-segment .ant-row {
+    flex-direction: column;
   }
   
-  .flight-segment {
-    margin-bottom: 15px;
+  .flight-ticket-segment .ant-col {
+    margin-bottom: 12px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .confirmation-header, .ant-steps {
+    display: none;
   }
   
-  .passenger-details {
-    padding: 10px;
+  .receipt-card {
+    position: static;
+    box-shadow: none;
+    border: 1px solid #000;
+    page-break-inside: avoid;
   }
   
-  .passenger {
-    margin-bottom: 5px;
+  .flight-ticket-segment {
+    page-break-inside: avoid;
   }
-  
-  .price-summary {
-    display: flex;
-    justify-content: space-between;
-    font-size: 16px;
-  }
-  
-  @media (max-width: 768px) {
-    .booking-confirmed-container {
-      padding: 0 10px;
-    }
-  }
+}

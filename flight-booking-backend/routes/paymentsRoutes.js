@@ -13,7 +13,7 @@ router.get("/", authenticateUser, authorizeRole(["admin"]), paymentController.ge
 router.get("/:id", authenticateUser, paymentController.getPaymentById);
 
 
-router.put("/:id", authenticateUser, authorizeRole(["admin"]), paymentController.updatePayment);
+router.put("/:id", authenticateUser, paymentController.updatePayment);
 
 router.delete("/:id", authenticateUser, authorizeRole(["admin"]), paymentController.deletePayment);
 

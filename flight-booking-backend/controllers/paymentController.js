@@ -2,7 +2,7 @@ const Payment = require("../models/Payment");
 const Booking = require("../models/Booking");
 const User = require("../models/User");
 const PaymentMethodMaster = require("../models/PaymentMethodMaster");
-
+const sequelize= require("../config/db");
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
@@ -62,27 +62,60 @@ exports.getPaymentById = async (req, res) => {
 };
 
 // Update payment
+// In paymentController.js - enhance updatePayment
 exports.updatePayment = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
         const { id } = req.params;
-        const { payment_status, amount, payment_method_id } = req.body;
+        const { payment_status } = req.body;
 
-        const payment = await Payment.findByPk(id);
+        // 1. Find payment with its booking
+        const payment = await Payment.findByPk(id, {
+            include: [Booking],
+            transaction
+        });
+
         if (!payment) {
+            await transaction.rollback();
             return res.status(404).json({ error: "Payment not found" });
         }
 
-        await payment.update({
-            payment_status,
-            amount,
-            payment_method_id,
-            modified_by: req.user.user_id
+        // 2. Update payment status
+        await payment.update({ payment_status }, { transaction });
+
+        // 3. Update the outbound booking (always)
+        await payment.Booking.update({
+            payment_status: payment_status,
+            booking_status_id: payment_status === 'Success' ? 2 : 1
+        }, { transaction });
+
+        // 4. ONLY FOR ROUND TRIPS: Find and update return booking
+        if (payment.Booking.is_roundtrip) {
+            const returnBooking = await Booking.findOne({
+                where: { roundtrip_id: payment.booking_id },
+                transaction
+            });
+            
+            if (returnBooking) {
+                await returnBooking.update({
+                    payment_status: payment_status,
+                    booking_status_id: payment_status === 'Success' ? 2 : 1
+                }, { transaction });
+            }
+        }
+
+        await transaction.commit();
+        res.status(200).json({ 
+            success: true,
+            message: "Payment and bookings updated"
         });
 
-        res.status(200).json({ message: "Payment updated successfully", payment });
     } catch (error) {
-        console.error("Error Updating Payment:", error);
-        res.status(500).json({ error: error.message });
+        await transaction.rollback();
+        res.status(500).json({ 
+            error: "Update failed",
+            details: error.message 
+        });
     }
 };
 

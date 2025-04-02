@@ -75,21 +75,27 @@ const Payment = () => {
 
   const handlePayment = async () => {
     try {
-      if (!selectedMethod) {
-        throw new Error("Please select a payment method");
-      }
+        if (!selectedMethod) {
+            throw new Error("Please select a payment method");
+        }
 
-      await API.patch(`/payments/${state.bookingData.paymentId}`, {
-        payment_method_id: selectedMethod,
-        payment_status: 'Success',
-        add_ons: selectedAddOns
-      });
+        // First update payment method
+        await API.put(`/payments/${state.bookingData.payment_id}`, {
+            payment_method_id: selectedMethod,
+            payment_status: 'Success' // Demo - change to Success
+        });
 
-      navigate("/confirmation", { state });
+        // Then navigate to confirmation
+        navigate("/booking-confirmed", { 
+            state: {
+                ...state,
+                paymentStatus: 'Success'
+            } 
+        });
     } catch (error) {
-      message.error(error.response?.data?.error || "Payment failed");
+        message.error(error.response?.data?.error || "Payment failed");
     }
-  };
+};
 
   if (loading) return <Spin size="large" className="loading-spinner" />;
 

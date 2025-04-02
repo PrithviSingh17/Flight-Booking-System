@@ -5,32 +5,32 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  padding-bottom: 150px; /* Add space for bottom panel */
+  padding-bottom: 150px;
 }
 
 /* Search bar section */
 .search-section {
   background-color: #f5f5f5;
-  padding: 20px;
+  padding: 16px; /* Reduced from 20px */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 16px; /* Reduced from 20px */
 }
 
 /* Results container */
 .results-container {
   display: flex;
-  gap: 20px;
+  gap: 16px; /* Reduced from 20px */
 }
 
 .search-form {
   display: flex;
-  gap: 10px;
+  gap: 8px; /* Reduced from 10px */
   align-items: center;
   flex-wrap: wrap;
 }
 
-/* Form items (inputs, selects, date pickers) */
+/* Form items */
 .search-form .ant-form-item {
   margin-bottom: 0;
   flex: 1;
@@ -80,31 +80,31 @@
 .filters-sidebar {
   width: 200px;
   background-color: white;
-  padding: 20px;
+  padding: 16px; /* Reduced from 20px */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .filters-sidebar h3 {
   font-size: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 16px; /* Reduced from 20px */
   color: #333;
 }
 
 .filter-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px; /* Reduced from 20px */
 }
 
 .filter-group h4 {
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 8px; /* Reduced from 10px */
   color: #666;
 }
 
 .filter-group .ant-checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px; /* Reduced from 8px */
 }
 
 .filter-group .ant-input-number {
@@ -115,22 +115,22 @@
 .flight-results {
   flex: 1;
   background-color: white;
-  padding: 20px;
+  padding: 16px; /* Reduced from 20px */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .flight-results h2 {
   font-size: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 16px; /* Reduced from 20px */
   color: #333;
 }
 
 .sort-section {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px; /* Reduced from 10px */
+  margin-bottom: 16px; /* Reduced from 20px */
 }
 
 .sort-section .ant-select {
@@ -141,14 +141,17 @@
 .flight-card {
   display: flex;
   justify-content: space-between;
-  padding: 15px;
+  padding: 12px; /* Reduced from 15px */
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px; /* Reduced from 10px */
   transition: all 0.3s ease;
   background-color: #fff;
   cursor: pointer;
-  min-height: 110px;
+  min-height: 100px; /* Reduced from 110px */
+  position: relative;
+  overflow: hidden;
+  /* Added */
 }
 
 .flight-card:hover {
@@ -164,24 +167,25 @@
 .flight-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px; /* Reduced from 10px */
   flex-grow: 1;
+  min-width: 0; /* Prevent overflow */
 }
 
 .airline-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px; /* Reduced from 8px */
 }
 
 .airline-logo img {
-  height: 2.5em;
-  width: 2.5em;
+  height: 2.5em; /* Reduced from 2.5em */
+  width: 2.5em; /* Reduced from 2.5em */
   vertical-align: middle;
 }
 
 .airline {
-  font-size: 16px;
+  font-size: 16px; /* Reduced from 16px */
   font-weight: bold;
   color: #333;
 }
@@ -190,7 +194,8 @@
   display: flex;
   align-items: center;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 6px;
+  gap: 4px;
 }
 
 .timings-container {
@@ -198,108 +203,119 @@
   flex-direction: column;
   align-items: center;
   flex: 1;
-}
+  min-width: 0;
+  justify-content: flex-start; /* Changed from center */
+  width: 100%; 
+} /* Prevent overflow */
+ /* Added */
+
 
 .timings {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 16px;
+  gap: 3px; /* Reduced from 5px */
+  font-size: 15px; /* Reduced from 16px */
   color: #333;
   font-weight: 500;
 }
 
 .timings .icon {
-  font-size: 18px;
+  font-size: 26px; /* Reduced from 18px */
 }
 
 .city-name {
-  font-size: 14px;
-  color:black;
-  margin-top: 4px;
+  font-size: 15px; /* Reduced from 14px */
+  color: black;
+  margin-top:2px; /* Reduced from 4px */
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px; /* Added */
 }
 
 .arrow-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 10px;
-  flex: 0.5;
+  justify-content: center;
+  padding: 0 4px;
+  position: relative;
 }
 
 .flight-card.one-way .arrow-container {
-  flex: 1.5;
+  flex: 0.9; /* Reduced from 1.5 */
 }
 
 .route-arrow {
-  font-size: 30px;
+  font-size: 34px;
   color: #666;
   line-height: 1;
-}
-
-.flight-card.one-way .route-arrow {
-  font-size: 30px;
+  margin-bottom: 40px;
 }
 
 .route-duration {
-  font-size: 13px;
-  color: black;
-  margin-top: 4px;
+  font-size: 14px;
+  color: #666;
   white-space: nowrap;
+  text-align: center;
+  margin-bottom: 35px; /* Reduced from 40px */
 }
+
+.flight-card.one-way .route-arrow {
+  font-size: 44px;
+}
+
+
 
 .price-section {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  min-width: 100px;
+  min-width: 85px; /* Reduced from 100px */
   justify-content: center;
+  margin-left: 8px; /* Added */
+  flex-shrink: 0;
 }
 
 .price {
-  font-size: 20px;
+  font-size: 18px; /* Reduced from 20px */
   font-weight: bold;
   color: #1890ff;
   line-height: 1.2;
 }
 
 .per-adult {
-  font-size: 12px;
+  font-size: 11px; /* Reduced from 12px */
   color: #666;
 }
 
 /* Bottom flight details panel */
-/* Bottom flight details panel - New Design */
-/* Bottom flight details panel - Subtle Design */
-/* Bottom flight details panel - Earthy Design */
-/* Bottom flight details panel - Airline Themed */
 .bottom-flight-details {
   position: fixed;
-  bottom: 20px;
+  bottom: 16px; /* Reduced from 20px */
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(145deg, #eef0f3 0%, #d8dce3 100%);
-border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 16px 24px;
-  border-radius: 14px;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 0 rgba(255, 255, 255, 0.05); /* subtle top highlight */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 12px 20px; /* Reduced from 16px 24px */
+  border-radius: 12px; /* Reduced from 14px */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 2px 0 rgba(255, 255, 255, 0.05);
   display: flex;
-  gap: 16px;
+  gap: 12px; /* Reduced from 16px */
   align-items: center;
   z-index: 1000;
-  max-width: 92%;
+  max-width: 100%;
   width: fit-content;
 }
 
 .flight-detail-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 10px;
+  gap: 8px; /* Reduced from 12px */
+  padding: 8px 12px; /* Reduced from 10px 16px */
+  border-radius: 8px; /* Reduced from 10px */
   position: relative;
   overflow: hidden;
   border: 1px solid #e0e0e0;
@@ -314,20 +330,12 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   background: #0284c7;
 }
 
-.flight-detail-card[data-airline="IndiGo"] {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-color: #bae6fd;
-}
-.flight-detail-card[data-airline="IndiGo"]::before {
-  background: #0284c7; /* IndiGo blue */
-}
-
 .flight-detail-card[data-airline="Air India"] {
   background: linear-gradient(135deg, #fff1f1 0%, #ffe5e5 100%);
   border-color: #ffc9c9;
 }
 .flight-detail-card[data-airline="Air India"]::before {
-  background: #eb0808; /* Air India red */
+  background: #eb0808;
 }
 
 .flight-detail-card[data-airline="SpiceJet"] {
@@ -335,7 +343,7 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   border-color: #fecdd3;
 }
 .flight-detail-card[data-airline="SpiceJet"]::before {
-  background: #bd183c; /* SpiceJet red */
+  background: #bd183c;
 }
 
 .flight-detail-card[data-airline="Vistara"] {
@@ -343,7 +351,7 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   border-color: #ddd6fe;
 }
 .flight-detail-card[data-airline="Vistara"]::before {
-  background: #7c3aed; /* Vistara purple */
+  background: #7c3aed;
 }
 
 .flight-detail-card[data-airline="GoAir"] {
@@ -351,7 +359,7 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   border-color: #bfdbfe;
 }
 .flight-detail-card[data-airline="GoAir"]::before {
-  background: #1d4ed8; /* GoAir blue */
+  background: #1d4ed8;
 }
 
 .flight-detail-card::before {
@@ -360,13 +368,13 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   left: 0;
   top: 0;
   height: 100%;
-  width: 4px;
+  width: 3px; /* Reduced from 4px */
   background: #ccc;
 }
 
 .airline-logo img {
-  height: 28px;
-  width: 28px;
+  height: 24px; /* Reduced from 28px */
+  width: 24px; /* Reduced from 28px */
   border-radius: 50%;
   object-fit: cover;
   z-index: 1;
@@ -375,15 +383,15 @@ border: 1px solid rgba(255, 255, 255, 0.4);
 .flight-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 5px; /* Reduced from 5px */
   z-index: 1;
 }
 
 .flight-time {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
+  gap: 6px; /* Reduced from 10px */
+  font-size: 14px; /* Reduced from 15px */
   color: #2d3748;
   font-weight: 500;
 }
@@ -391,24 +399,27 @@ border: 1px solid rgba(255, 255, 255, 0.4);
 .duration {
   color: #4a5568;
   font-weight: 500;
+  font-size: 13px;
+  max-width: 100%; 
+  
 }
 
 .flight-route {
-  font-size: 13px;
+  font-size: 12px; /* Reduced from 13px */
   color: #4a5568;
 }
 
 .flight-price {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px; /* Reduced from 16px */
   color: #1a202c;
 }
 
 .book-button {
-  margin-left: 10px;
-  padding: 0 28px;
-  height: 44px;
-  border-radius: 10px;
+  margin-left: 8px; /* Reduced from 10px */
+  padding: 0 24px; /* Reduced from 28px */
+  height: 40px; /* Reduced from 44px */
+  border-radius: 8px; /* Reduced from 10px */
   background: #1890ff;
   color: white;
   font-weight: 500;
@@ -428,18 +439,19 @@ border: 1px solid rgba(255, 255, 255, 0.4);
   text-align: center;
   font-size: 16px;
   color: #666;
-  padding: 20px;
+  padding: 16px; /* Reduced from 20px */
 }
 
 .no-results::before {
   content: "😢";
-  margin-right: 8px;
+  margin-right: 6px; /* Reduced from 8px */
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .search-form {
     flex-direction: column;
+    gap: 6px; /* Added */
   }
 
   .search-form .ant-form-item {
@@ -453,62 +465,57 @@ border: 1px solid rgba(255, 255, 255, 0.4);
 
   .results-container {
     flex-direction: column;
+    gap: 12px; /* Added */
   }
 
   .filters-sidebar {
     width: 100%;
+    padding: 12px; /* Reduced */
   }
 
   .flight-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: row; /* Changed from column */
+    flex-wrap: wrap;
+    gap: 6px; /* Added */
+    padding: 10px; /* Reduced */
   }
 
   .route-container {
-    margin-top: 15px;
-    flex-direction: column;
-    align-items: flex-start;
+    margin-top: 6px; /* Reduced */
+    flex-direction: row; /* Changed from column */
+    gap: 4px; /* Added */
   }
   
   .timings-container {
-    align-items: flex-start;
+    align-items: center; /* Changed from flex-start */
+    width: auto; /* Changed from 100% */
+  }
+  
+  .price-section {
     width: 100%;
-  }
-  
-  .arrow-container {
-    margin: 5px 0;
-    align-self: flex-start;
-  }
-  
-  .route-arrow {
-    transform: rotate(90deg);
-    margin-left: 10px;
-  }
-  
-  .flight-card.one-way .arrow-container {
-    flex: 1;
+    align-items: flex-end;
+    margin-top: 6px;
+    margin-left: 0;
   }
 
   .bottom-flight-details {
     flex-direction: column;
-    padding: 18px;
+    padding: 12px; /* Reduced from 18px */
     width: 90%;
-    gap: 12px;
-    border-radius: 20px;
+    gap: 8px; /* Reduced from 12px */
+    border-radius: 12px; /* Reduced from 20px */
   }
   
   .flight-detail-card {
     width: 100%;
-    padding: 15px 20px;
+    padding: 10px 12px; /* Reduced from 15px 20px */
   }
   
   .book-button {
     width: 100%;
-    margin: 10px 0 0 0;
-    padding: 0 20px;
-    height: 48px;
-    font-size: 16px;
+    margin: 6px 0 0 0; /* Reduced */
+    padding: 0 16px; /* Reduced from 20px */
+    height: 42px; /* Reduced from 48px */
+    font-size: 15px; /* Reduced from 16px */
   }
-
 }
