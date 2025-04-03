@@ -12,7 +12,16 @@
   padding: 20px;
   margin-bottom: 24px;
 }
+.home-container {
+  background-color: white;
+  min-height: 100vh;
+}
 
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 /* Flight Ticket Segment */
 .flight-ticket-segment {
   border-radius: 8px;
