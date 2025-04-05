@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import { 
   Card, 
   Button, 
@@ -23,29 +23,40 @@ import {
   QrcodeOutlined
 } from '@ant-design/icons';
 import moment from "moment";
+import { Link } from "react-router-dom";
+import logo from "../assets/logo1.png";
 import "../styles/BookingConfirmed.css";
 import indigoLogo from "../assets/indigo.png";
 import airIndiaLogo from "../assets/airindia.jpg";
 import spicejetLogo from "../assets/spicejet.png";
 import vistaraLogo from "../assets/vistara.jpg";
 import goFirstLogo from "../assets/gofirst.jpg";
- // Your existing logo map
 
- const airlineLogoMap = {
-   "IndiGo": indigoLogo,
-   "Air India": airIndiaLogo,
-   "SpiceJet": spicejetLogo,
-   "Vistara": vistaraLogo,
-   "GoAir": goFirstLogo,
- };
- 
+const airlineLogoMap = {
+  "IndiGo": indigoLogo,
+  "Air India": airIndiaLogo,
+  "SpiceJet": spicejetLogo,
+  "Vistara": vistaraLogo,
+  "GoAir": goFirstLogo,
+};
+
 const { Title, Text } = Typography;
 
 const BookingConfirmed = () => {
   const { state } = useLocation();
+  const navigate = useNavigate();
   const bookingRef = `FLY${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
 
-  // Generate sample QR code (in a real app, use a QR generator library)
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    message.success("Logged out successfully!");
+    navigate("/");
+  };
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
+
   const generateQRCode = () => {
     return (
       <div className="qr-placeholder">
@@ -151,6 +162,30 @@ const BookingConfirmed = () => {
 
   return (
     <div className="booking-confirmed-container">
+      {/* Header */}
+      <header className="header">
+      <div className="logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
+          <img src={logo} alt="Flight Booking Logo" className="logo-img" />
+        </div>
+        <nav className="nav-links">
+          <Link to="/about-us">About Us</Link>
+          <Link to="/contact-us">Contact Us</Link>
+          <Link to="/help">Help</Link>
+        </nav>
+        <div className="auth-buttons">
+          {sessionStorage.getItem("token") && (
+            <>
+              <Button type="primary" onClick={() => navigate("/dashboard")}>
+                Dashboard
+              </Button>
+              <Button type="primary" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          )}
+        </div>
+      </header>
+
       <Card className="confirmation-header">
         <Row align="middle" gutter={16}>
           <Col>
