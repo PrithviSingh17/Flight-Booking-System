@@ -77,8 +77,17 @@ const SearchResults = () => {
   };
 
   const getAirlineLogo = (airlineName) => {
-    return airlineLogoMap[airlineName] || airlineLogoMap["IndiGo"];
+    // Normalize the airline name for matching
+    const normalized = airlineName.toLowerCase().replace(/\s+/g, '');
+    
+    // Find the first matching key
+    const matchedKey = Object.keys(airlineLogoMap).find(key => 
+      key.toLowerCase().replace(/\s+/g, '') === normalized
+    );
+    
+    return matchedKey ? airlineLogoMap[matchedKey] : indigoLogo; // Default to Indigo if no match
   };
+  
 
   useEffect(() => {
     const fetchFlights = async () => {

@@ -12,7 +12,9 @@ const generateSeatNumber = () => {
   const randomNumber = Math.floor(Math.random() * 30) + 1; // 1-30
   return `${randomLetter}${randomNumber}`;
 };
-
+// Status constants
+const STATUS_CONFIRMED = 1;
+const STATUS_PENDING = 2;
 exports.createCompleteBooking = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
@@ -38,7 +40,7 @@ exports.createCompleteBooking = async (req, res) => {
         const outboundBooking = await Booking.create({
             user_id: req.user.user_id,
             flight_id,
-            booking_status_id: 1,
+            booking_status_id: STATUS_PENDING,
             booking_date: moment().format("YYYY-MM-DD"),
             is_roundtrip,
             total_price: outboundTotal,
@@ -60,7 +62,7 @@ exports.createCompleteBooking = async (req, res) => {
             returnBooking = await Booking.create({
                 user_id: req.user.user_id,
                 flight_id: return_flight_id,
-                booking_status_id: 1,
+                booking_status_id: STATUS_PENDING,
                 booking_date: moment().format("YYYY-MM-DD"),
                 is_roundtrip,
                 roundtrip_id: outboundBooking.booking_id,
@@ -165,7 +167,7 @@ exports.createBookingWithPassengers = async (req, res) => {
         const outboundBooking = await Booking.create({
             user_id,
             flight_id,
-            booking_status_id: 1, // Confirmed
+            booking_status_id: STATUS_PENDING, // Confirmed
             booking_date,
             is_roundtrip,
             total_price: outboundFlight.price * passengers.length,
@@ -177,7 +179,7 @@ exports.createBookingWithPassengers = async (req, res) => {
             returnBooking = await Booking.create({
                 user_id,
                 flight_id: return_flight_id,
-                booking_status_id: 1,
+                booking_status_id:  STATUS_PENDING, // Confirmed
                 booking_date,
                 is_roundtrip,
                 roundtrip_id: outboundBooking.booking_id,
@@ -221,39 +223,7 @@ exports.getAllBookings = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-exports.getBookingsByUserId = async (req, res) => {
-    try {
-        const userId = req.user.user_id; // Get the user ID from the authenticated user
-        const bookings = await Booking.findAll({
-            where: { user_id: userId },
-            include: [
-                { model: Passenger, as: "passengers" },
-                { model: User, as: "user" },
-                { model: Flight, as: "flight" },
-                { model: BookingStatusMaster, as: "status" },
-            ],
-        });
 
-        if (bookings.length === 0) {
-            return res.status(404).json({ message: "No bookings found for this user" });
-        }
-
-        res.status(200).json(bookings);
-    } catch (error) {
-        console.error("Error fetching bookings:", error);
-        res.status(500).json({ message: "Error fetching bookings", error: error.message });
-    }
-};
-exports.getBookingById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const booking = await Booking.findByPk(id);
-        if (!booking) return res.status(404).json({ error: "Booking not found" });
-        res.status(200).json(booking);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
 
 
 exports.updateBooking = async (req, res) => {

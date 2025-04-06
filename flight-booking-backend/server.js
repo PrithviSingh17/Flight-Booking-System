@@ -14,6 +14,7 @@ const errorHandler = require("./middleware/errorHandler");
 const bookingStatusRoutes = require("./routes/bookingStatusRoutes");
 const flightStatusMasterRoutes = require("./routes/flightStatusMasterRoutes");
 const paymentMethodMasterRoutes = require("./routes/paymentMethodMasterRoutes");
+const bookingDashboardRoutes = require("./routes/bookingDashboardRoutes");
 dotenv.config();
 
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/airports", airportRoutes);
 app.use("/api/booking-status", bookingStatusRoutes);
 app.use("/api/flight-status-master", flightStatusMasterRoutes);
 app.use("/api/payment-methods", paymentMethodMasterRoutes);
+app.use('/api/dashboard', bookingDashboardRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

@@ -12,12 +12,6 @@ router.post("/complete", authenticateUser, bookingController.createCompleteBooki
 // Get all bookings (admin only)
 router.get("/", authenticateUser, authorizeRole(["admin"]), bookingController.getAllBookings);
 
-// Get booking by ID
-router.get("/:id", authenticateUser, bookingController.getBookingById);
-
-// Get bookings by user ID
-router.get("/user/:userId", authenticateUser, bookingController.getBookingsByUserId);
-
 // Update booking (admin only)
 router.put("/:id", authenticateUser, authorizeRole(["admin"]), bookingController.updateBooking);
 
