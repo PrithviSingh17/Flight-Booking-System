@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, DatePicker, Select, Button, Radio } from "antd";
+import { Form, DatePicker, Select, Button, Radio, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import "../styles/SearchBar.css";
@@ -74,6 +74,13 @@ const SearchBar = ({ initialValues }) => {
 
   const onFinish = (values) => {
     const { departureCity, arrivalCity, passengers } = values;
+    
+    // Validation: Check if departure and arrival cities are the same
+    if (departureCity === arrivalCity) {
+      message.error("Departure and arrival cities cannot be the same!");
+      return;
+    }
+
     const finalTripType = dates.returnDate ? "return" : "one-way";
 
     navigate(
@@ -81,6 +88,15 @@ const SearchBar = ({ initialValues }) => {
         dates.departureDate?.format("YYYY-MM-DD") || ""
       }&returnDate=${dates.returnDate?.format("YYYY-MM-DD") || ""}&passengers=${passengers}&tripType=${finalTripType}`
     );
+  };
+
+  // Add custom validator for arrival city
+  const validateArrivalCity = (_, value) => {
+    const departureCity = form.getFieldValue('departureCity');
+    if (value && value === departureCity) {
+      return Promise.reject(new Error('Arrival city must be different from departure city!'));
+    }
+    return Promise.resolve();
   };
 
   const cities = [
@@ -118,7 +134,13 @@ const SearchBar = ({ initialValues }) => {
         </Select>
       </Form.Item>
 
-      <Form.Item name="arrivalCity" rules={[{ required: true, message: "Please select arrival city!" }]}>
+      <Form.Item 
+        name="arrivalCity" 
+        rules={[
+          { required: true, message: "Please select arrival city!" },
+          { validator: validateArrivalCity }
+        ]}
+      >
         <Select showSearch placeholder="Arrival City" className="search-input">
           {cities.map(city => (
             <Option key={city} value={city}>{city}</Option>

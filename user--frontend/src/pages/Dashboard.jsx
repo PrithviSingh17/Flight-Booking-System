@@ -56,7 +56,15 @@ const airlineLogoMap = {
 
 const BookingDetailsModal = ({ booking, visible, onCancel, loading }) => {
     const getAirlineLogo = (airlineName) => {
-        return airlineLogoMap[airlineName] || indigoLogo; // default to indigo if not found
+        return airlineLogoMap[airlineName] || indigoLogo;
+    };
+
+    const getStatusColor = (status) => {
+        switch(status) {
+            case 'Confirmed': return 'green';
+            case 'Cancelled': return 'red';
+            default: return 'orange';
+        }
     };
 
     return (
@@ -88,7 +96,7 @@ const BookingDetailsModal = ({ booking, visible, onCancel, loading }) => {
                         <Col span={20}>
                             <div className="flight-header">
                                 <Text strong style={{ fontSize: 18 }}>{booking.airline}</Text>
-                                <Tag color={booking.status === 'Confirmed' ? 'green' : 'orange'}>
+                                <Tag color={getStatusColor(booking.status)}>
                                     {booking.status}
                                 </Tag>
                             </div>
@@ -170,12 +178,14 @@ const BookingDetailsModal = ({ booking, visible, onCancel, loading }) => {
                             <Divider />
 
                             <Row justify="end">
-                                <Button 
-                                    type="primary" 
-                                    onClick={() => window.print()}
-                                >
-                                    Print Ticket
-                                </Button>
+                                {booking.status === 'Confirmed' && (
+                                    <Button 
+                                        type="primary" 
+                                        onClick={() => window.print()}
+                                    >
+                                        Print Ticket
+                                    </Button>
+                                )}
                             </Row>
                         </Col>
                     </Row>
@@ -199,16 +209,7 @@ export default function Dashboard() {
     useEffect(() => {
         fetchDashboardData();
     }, []);
-    useEffect(() => {
-        console.log('Current bookings state:', {
-          upcoming: data.upcoming,
-          history: data.history
-        });
-      }, [data]);
-      
-      useEffect(() => {
-        console.log('Cancelling state changed:', cancelling);
-      }, [cancelling]);
+
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
@@ -248,15 +249,25 @@ export default function Dashboard() {
     const handleCancelBooking = async (bookingId) => {
         try {
             setCancelling(true);
-            await API.delete(`/dashboard/bookings/${bookingId}`);
-            message.success('Booking cancelled successfully');
-            fetchDashboardData(); // Refresh the data
-            setModalVisible(false); // Close the modal if open
-            setSelectedBooking(null); // Clear selected booking
+            setCancellingId(bookingId);
+            const response = await API.delete(`/dashboard/bookings/${bookingId}`);
+            message.success(response.data.message || 'Booking cancelled successfully');
+            fetchDashboardData();
+            setModalVisible(false);
+            setSelectedBooking(null);
         } catch (err) {
             message.error(err.response?.data?.error || 'Failed to cancel booking');
         } finally {
             setCancelling(false);
+            setCancellingId(null);
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch(status) {
+            case 'Confirmed': return 'green';
+            case 'Cancelled': return 'red';
+            default: return 'orange';
         }
     };
 
@@ -285,7 +296,7 @@ export default function Dashboard() {
             title: 'Status',
             dataIndex: 'status',
             render: status => (
-                <Tag color={status === 'Confirmed' ? 'green' : 'orange'}>
+                <Tag color={getStatusColor(status)}>
                     {status}
                 </Tag>
             )
@@ -309,18 +320,9 @@ export default function Dashboard() {
                     danger
                     onClick={async (e) => {
                       e.stopPropagation();
-                      setCancellingId(record.booking_id);
-                      try {
-                        await API.delete(`/dashboard/bookings/${record.booking_id}`);
-                        message.success('Cancelled!');
-                        fetchDashboardData();
-                      } catch (err) {
-                        message.error(err.response?.data?.error || 'Failed');
-                      } finally {
-                        setCancellingId(null);
-                      }
+                      await handleCancelBooking(record.booking_id);
                     }}
-                    loading={cancellingId === record.booking_id}
+                    loading={cancelling && cancellingId === record.booking_id}
                   >
                     Cancel
                   </Button>
@@ -490,7 +492,7 @@ export default function Dashboard() {
                 booking={selectedBooking}
                 visible={modalVisible}
                 onCancel={() => setModalVisible(false)}
-                loading={cancelling && selectedBooking?.booking_id}
+                loading={cancelling && selectedBooking?.booking_id === cancellingId}
             />
         </div>
     );

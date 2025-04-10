@@ -266,8 +266,17 @@ exports.cancelBooking = async (req, res) => {
         const booking = await Booking.findByPk(id);
         if (!booking) return res.status(404).json({ error: "Booking not found" });
 
-        await booking.destroy();
-        res.status(200).json({ message: "Booking cancelled successfully" });
+        // Update booking status to "Cancelled" (status_id 3) instead of deleting
+        await booking.update({
+            booking_status_id: 3, // Cancelled status
+            modified_by: req.user?.user_id || booking.modified_by
+        });
+
+        res.status(200).json({ 
+            message: "Booking cancelled successfully",
+            booking_id: booking.booking_id,
+            status: "Cancelled"
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

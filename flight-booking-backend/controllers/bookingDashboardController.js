@@ -38,9 +38,7 @@ exports.getDashboardData = async (req, res) => {
                         model: BookingStatusMaster,
                         as: 'status',
                         attributes: ['status_name'],
-                        where: {
-                            status_name: 'Confirmed' // Additional filter
-                        },
+                
                         required: true // Ensures inner join (only bookings with status)
                     
                     }
@@ -211,7 +209,8 @@ exports.cancelBooking = async (req, res) => {
         res.json({ 
             success: true,
             message: "Booking cancelled successfully",
-            booking_id: booking.booking_id
+            booking_id: booking.booking_id,
+            new_status: "Cancelled"
         });
 
     } catch (error) {

@@ -1,6 +1,10 @@
 /* SearchBar.css */
 
 /* Enhanced radio button styles */
+
+/* SearchBar.css */
+
+/* Enhanced radio button styles */
 .trip-type-radio-group {
   margin-right: 15px;
 }
@@ -14,6 +18,11 @@
   height: 40px;
   line-height: 38px;
   transition: all 0.3s;
+  width: 120px; /* Add fixed width */
+  text-align: center; /* Center the text */
+  display: inline-flex; /* Use flex for better alignment */
+  align-items: center; /* Vertical center */
+  justify-content: center; /* Horizontal center */
 }
 
 .trip-radio-button:first-child {
