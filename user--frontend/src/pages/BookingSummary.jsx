@@ -18,15 +18,14 @@ import {
   Space,
   Radio,
   ConfigProvider,
-  theme
+  theme,
+  DatePicker
 } from "antd";
 import { 
   InfoCircleOutlined,
   CarryOutOutlined,
   ShoppingOutlined
 } from '@ant-design/icons';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import API from "../services/api";
 import moment from "moment";
 import "../styles/BookingSummary.css";
@@ -67,6 +66,21 @@ const getAirlineLogo = (airlineName) => {
   return airlineLogoMap[airlineName] || indigoLogo;
 };
 
+// Helper function to calculate age from date of birth
+const calculateAge = (dob) => {
+  if (!dob) return null;
+  const today = new Date();
+  const birthDate = new Date(dob);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
 // Tax calculation based on Indian flight taxes (as of 2023)
 const calculateTaxes = (baseFare, passengers) => {
   // GST (5% of base fare)
@@ -99,6 +113,7 @@ const BookingSummary = () => {
     outbound: null, 
     return: null 
   });
+
   const validatePassengerFields = () => {
     const errors = {};
     let isValid = true;
@@ -110,10 +125,6 @@ const BookingSummary = () => {
       }
       if (!passenger.last_name?.trim()) {
         errors[`last_name_${index}`] = 'Please enter last name';
-        isValid = false;
-      }
-      if (!passenger.age) {
-        errors[`age_${index}`] = 'Please enter age';
         isValid = false;
       }
       if (!passenger.date_of_birth) {
@@ -157,8 +168,8 @@ const BookingSummary = () => {
 
         const passengerCount = state?.passengers || 1;
         setPassengers(Array(passengerCount).fill().map(() => ({
-          name: '',
-          age: '',
+          first_name: '',
+          last_name: '',
           gender: 'Male',
           date_of_birth: null,
           contact_number: '',
@@ -186,9 +197,9 @@ const BookingSummary = () => {
     setPassengers(updatedPassengers);
   };
 
-  const handleDateChange = (date, index) => {
+  const handleDateChange = (date, dateString, index) => {
     const updatedPassengers = [...passengers];
-    updatedPassengers[index].date_of_birth = date;
+    updatedPassengers[index].date_of_birth = date ? date.toDate() : null;
     setPassengers(updatedPassengers);
   };
 
@@ -203,7 +214,7 @@ const BookingSummary = () => {
       // Prepare passengers array exactly as backend expects
       const formattedPassengers = passengers.map(p => ({
         name: `${p.first_name} ${p.last_name}`.trim(),
-        age: Number(p.age),
+        age: calculateAge(p.date_of_birth),
         gender: p.gender,
         date_of_birth: p.date_of_birth ? moment(p.date_of_birth).format("YYYY-MM-DD") : null,
         contact_number: String(p.contact_number),
@@ -217,13 +228,10 @@ const BookingSummary = () => {
         flight_id: flightId,
         return_flight_id: returnFlightId || null,
         passengers: formattedPassengers,
-        // These are calculated in your component already:
         base_fare: baseFare,
         taxes: taxes,
         total_amount: totalAmount
       };
-  
-      console.log("Final Payload:", payload); // Debugging
   
       const response = await API.post("/bookings/complete", payload);
   
@@ -435,7 +443,7 @@ const BookingSummary = () => {
                 style={{ borderColor: colors.light }}
               >
                 <Form form={form} layout="vertical" className="passenger-form">
-                <Row gutter={16}>
+                  <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
                         label="First Name"
@@ -473,24 +481,6 @@ const BookingSummary = () => {
                   <Row gutter={16}>
                     <Col span={8}>
                       <Form.Item
-                        label="Age"
-                        name={`age_${index}`}
-                        validateStatus={validationErrors[`age_${index}`] ? 'error' : ''}
-                        help={validationErrors[`age_${index}`]}
-                        rules={[{ required: true, message: 'Please enter age between 1-120' }]}
-                      >
-                        <InputNumber
-                          min={1}
-                          max={120}
-                          value={passenger.age}
-                          onChange={(value) => handlePassengerChange(index, 'age', value)}
-                          style={{ width: '100%', borderColor: colors.light }}
-                          placeholder="Age"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
                         label="Gender"
                         name={`gender_${index}`}
                         validateStatus={validationErrors[`gender_${index}`] ? 'error' : ''}
@@ -507,25 +497,23 @@ const BookingSummary = () => {
                         </Radio.Group>
                       </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={16}>
                       <Form.Item
                         label="Date of Birth"
                         name={`dob_${index}`}
                         validateStatus={validationErrors[`dob_${index}`] ? 'error' : ''}
-                        help={validationErrors[`dob_${index}`]}
+                        help={validationErrors[`dob_${index}`] || (
+                          passenger.date_of_birth ? `Age: ${calculateAge(passenger.date_of_birth)} years` : ''
+                        )}
                         rules={[{ required: true, message: 'Please select date of birth' }]}
                       >
                         <DatePicker
-                          selected={passenger.date_of_birth}
-                          onChange={(date) => handleDateChange(date, index)}
-                          dateFormat="yyyy-MM-dd"
-                          placeholderText="Select date of birth"
-                          className="custom-datepicker"
-                          wrapperClassName="datepicker-wrapper"
-                          popperClassName="datepicker-popper"
-                          maxDate={new Date()}
-                          showYearDropdown
-                          dropdownMode="select"
+                          format="YYYY-MM-DD"
+                          value={passenger.date_of_birth ? moment(passenger.date_of_birth) : null}
+                          onChange={(date, dateString) => handleDateChange(date, dateString, index)}
+                          disabledDate={(current) => current && current > moment().endOf('day')}
+                          style={{ width: '100%' }}
+                          placeholder="Select date of birth"
                         />
                       </Form.Item>
                     </Col>

@@ -51,11 +51,7 @@ const Payment = sequelize.define("payment", {
         allowNull: false,
         defaultValue: 'Pending'
       },
-      
-    transaction_date: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    },
+    
     created_by: {
         type: DataTypes.STRING,
         allowNull: false,

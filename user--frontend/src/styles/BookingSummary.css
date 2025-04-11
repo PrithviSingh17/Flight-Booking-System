@@ -208,33 +208,6 @@
   border-radius: 4px;
 }
 
-/* Custom Datepicker */
-.custom-datepicker {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.custom-datepicker:hover {
-  border-color: #4361ee;
-}
-
-.custom-datepicker:focus {
-  border-color: #4361ee;
-  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-  outline: none;
-}
-
-.datepicker-wrapper {
-  width: 100%;
-}
-
-.datepicker-popper {
-  z-index: 1000;
-}
-
 /* Price Summary */
 .price-summary-card {
   margin-bottom: 24px;
