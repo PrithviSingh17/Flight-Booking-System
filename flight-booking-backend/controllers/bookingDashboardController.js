@@ -38,7 +38,11 @@ exports.getDashboardData = async (req, res) => {
                         model: BookingStatusMaster,
                         as: 'status',
                         attributes: ['status_name'],
-                
+                        where: {
+                            status_name: {
+                                [Op.in]: ['Confirmed', 'Cancelled'] // Only include these statuses
+                            }
+                        },
                         required: true // Ensures inner join (only bookings with status)
                     
                     }
