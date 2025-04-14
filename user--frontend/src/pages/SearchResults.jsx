@@ -217,6 +217,18 @@ const SearchResults = () => {
     setOutboundFlights(sortedOutbound);
     setReturnFlights(sortedReturn);
   };
+  const normalizeAirlineName = (name) => {
+    const map = {
+      'indigo': 'IndiGo',
+      'air india': 'Air India',
+      'spicejet': 'SpiceJet',
+      'vistara': 'Vistara',
+      'goair': 'GoAir',
+      'go first': 'GoAir'
+    };
+    const lowerName = name.toLowerCase();
+    return map[lowerName] || name;
+  };
 
   const handleFlightSelection = (flight) => {
     if (flight.type === "Outbound") {
@@ -490,7 +502,7 @@ const SearchResults = () => {
             {selectedOutboundFlight && (
               <div 
                 className="flight-detail-card"
-                data-airline={selectedOutboundFlight.airline_name}
+                data-airline={normalizeAirlineName(selectedOutboundFlight.airline_name)}
               >
                 <div className="airline-logo">
                   <img

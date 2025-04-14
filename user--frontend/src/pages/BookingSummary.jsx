@@ -63,7 +63,19 @@ const airlineLogoMap = {
 };
 
 const getAirlineLogo = (airlineName) => {
-  return airlineLogoMap[airlineName] || indigoLogo;
+  // Normalize the airline name
+  const normalized = airlineName.toLowerCase().trim();
+  
+  // Map normalized names to logo
+  const logoMap = {
+    'indigo': indigoLogo,
+    'air india': airIndiaLogo,
+    'spicejet': spicejetLogo,
+    'vistara': vistaratLogo,
+    'goair': goFirstLogo,
+  };
+  
+  return logoMap[normalized] || indigoLogo; // Default to IndiGo if no match
 };
 
 // Helper function to calculate age from date of birth
@@ -205,33 +217,40 @@ const BookingSummary = () => {
 
   const handleProceedToPayment = async () => {
     try {
+      // Validate all fields first
       const isValid = validatePassengerFields();
       if (!isValid) {
         message.warning('Please fill all required fields correctly');
         return;
       }
   
-      // Prepare passengers array exactly as backend expects
+      // Format passengers data to match backend expectations
       const formattedPassengers = passengers.map(p => ({
         name: `${p.first_name} ${p.last_name}`.trim(),
         age: calculateAge(p.date_of_birth),
         gender: p.gender,
         date_of_birth: p.date_of_birth ? moment(p.date_of_birth).format("YYYY-MM-DD") : null,
-        contact_number: String(p.contact_number),
+        contact_number: String(p.contact_number).replace(/\D/g, ''), // Ensure only numbers
+        email: p.email || null,
         passport_number: p.passport_number || null,
         nationality: p.nationality || null,
-        email: p.email || null,
         special_requests: p.special_requests || null
       }));
   
+      // Prepare the complete payload
       const payload = {
         flight_id: flightId,
         return_flight_id: returnFlightId || null,
         passengers: formattedPassengers,
-        base_fare: baseFare,
-        taxes: taxes,
-        total_amount: totalAmount
+        fare_details: {
+          base_fare: baseFare,
+          taxes: taxes,
+          total_amount: totalAmount
+        },
+        payment_status: 'Pending' // Explicit payment status
       };
+  
+      console.log('Submitting booking payload:', payload); // Debug log
   
       const response = await API.post("/bookings/complete", payload);
   
@@ -247,17 +266,25 @@ const BookingSummary = () => {
           }
         }
       });
+  
     } catch (error) {
       console.error("Booking error details:", {
         message: error.message,
         response: error.response?.data,
-        request: error.config
+        request: {
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.config?.data
+        }
       });
-      message.error(
-        error.response?.data?.error || 
-        error.response?.data?.message || 
-        "Booking failed. Please try again."
-      );
+      
+      const errorMessage = error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).join(', ')
+        : error.response?.data?.message 
+          ? error.response.data.message
+          : "Booking failed. Please try again.";
+      
+      message.error(errorMessage);
     }
   };
 

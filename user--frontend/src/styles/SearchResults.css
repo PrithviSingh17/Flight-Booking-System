@@ -321,45 +321,48 @@
   border: 1px solid #e0e0e0;
 }
 
-/* Airline-specific color schemes */
-.flight-detail-card[data-airline="IndiGo"] {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-color: #bae6fd;
-}
-.flight-detail-card[data-airline="IndiGo"]::before {
-  background: #0284c7;
-}
-
-.flight-detail-card[data-airline="Air India"] {
-  background: linear-gradient(135deg, #fff1f1 0%, #ffe5e5 100%);
-  border-color: #ffc9c9;
-}
-.flight-detail-card[data-airline="Air India"]::before {
-  background: #eb0808;
+/* More brand-accurate colors */
+/* Airline-specific styles for bottom card */
+/* Bottom flight details panel - airline specific colors */
+/* Bottom flight details - airline colors */
+.bottom-flight-details .flight-detail-card[data-airline="IndiGo"] {
+  background: linear-gradient(135deg, #1C3F91 0%, #00AEEF 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 
-.flight-detail-card[data-airline="SpiceJet"] {
-  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
-  border-color: #fecdd3;
-}
-.flight-detail-card[data-airline="SpiceJet"]::before {
-  background: #bd183c;
+.bottom-flight-details .flight-detail-card[data-airline="AirIndia"] {
+  background: linear-gradient(135deg, #FF0000 0%, #FF6600 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 
-.flight-detail-card[data-airline="Vistara"] {
-  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-  border-color: #ddd6fe;
-}
-.flight-detail-card[data-airline="Vistara"]::before {
-  background: #7c3aed;
+.bottom-flight-details .flight-detail-card[data-airline="SpiceJet"] {
+  background: linear-gradient(135deg, #FF4500 0%, #FF8C00 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
 
-.flight-detail-card[data-airline="GoAir"] {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  border-color: #bfdbfe;
+.bottom-flight-details .flight-detail-card[data-airline="Vistara"] {
+  background: linear-gradient(135deg, #4B0082 0%, #800080 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
 }
-.flight-detail-card[data-airline="GoAir"]::before {
-  background: #1d4ed8;
+
+.bottom-flight-details .flight-detail-card[data-airline="Go Air"] {
+  background: linear-gradient(135deg, #69a6f0 0%, #56ddef 100%) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+
+/* Text color for all airline cards */
+.bottom-flight-details .flight-detail-card[data-airline] {
+  color: white !important;
+}
+
+.bottom-flight-details .flight-detail-card[data-airline] * {
+  color: inherit !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+/* Ensure text is readable on colored backgrounds */
+.bottom-flight-details .flight-detail-card[data-airline] * {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .flight-detail-card::before {
