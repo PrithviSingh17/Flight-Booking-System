@@ -54,13 +54,7 @@ const colors = {
 };
 
 // Airline logo mapping
-const airlineLogoMap = {
-  "IndiGo": indigoLogo,
-  "Air India": airIndiaLogo,
-  "SpiceJet": spicejetLogo,
-  "Vistara": vistaraLogo,
-  "GoAir": goFirstLogo,
-};
+
 
 const getAirlineLogo = (airlineName) => {
   // Normalize the airline name
@@ -71,7 +65,7 @@ const getAirlineLogo = (airlineName) => {
     'indigo': indigoLogo,
     'air india': airIndiaLogo,
     'spicejet': spicejetLogo,
-    'vistara': vistaratLogo,
+    'vistara': vistaraLogo,
     'goair': goFirstLogo,
   };
   
